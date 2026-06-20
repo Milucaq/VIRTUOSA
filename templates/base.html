@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Virtuosa Track{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link 
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" 
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="app-body">
+
+<div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-emblem">V</div>
+
+            <div class="brand-text">
+                <strong>VIRTUOSA</strong>
+                <span>TRACK</span>
+                <small>ATELIER MANAGEMENT</small>
+            </div>
+        </div>
+
+        <div class="brand-divider"></div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                <span class="nav-icon">◌</span>
+                Dashboard
+            </a>
+
+            <a class="nav-item {% if request.resolver_match.url_name == 'lista_pedidos' or request.resolver_match.url_name == 'detalle_pedido' %}active{% endif %}" href="{% url 'lista_pedidos' %}">
+                <span class="nav-icon">□</span>
+                Pedidos
+            </a>
+
+            <a class="nav-item {% if request.resolver_match.url_name == 'crear_pedido' %}active{% endif %}" href="{% url 'crear_pedido' %}">
+                <span class="nav-icon">＋</span>
+                Nuevo pedido
+            </a>
+
+            <a class="nav-item {% if request.resolver_match.url_name == 'inventario' or request.resolver_match.url_name == 'crear_insumo' %}active{% endif %}" href="{% url 'inventario' %}">
+                <span class="nav-icon">◇</span>
+                Inventario
+            </a>
+
+            <a class="nav-item {% if request.resolver_match.url_name == 'consulta_cliente' %}active{% endif %}" href="{% url 'consulta_cliente' %}">
+                <span class="nav-icon">☷</span>
+                Consulta cliente
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="dress-line"></div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="nav-item logout-button" type="submit">
+                    <span class="nav-icon">↪</span>
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <section class="main-area">
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+
+                <div>
+                    <h1>{% block page_title %}Virtuosa Track{% endblock %}</h1>
+                    <p>{% block page_subtitle %}Gestión inteligente para confección artesanal{% endblock %}</p>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="notification-dot">3</div>
+
+                <div class="user-card">
+                    <div class="avatar">
+                        {% if user.first_name %}
+                            {{ user.first_name|slice:":1" }}
+                        {% else %}
+                            AV
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <strong>
+                            {% if user.is_authenticated %}
+                                {{ user.get_username }}
+                            {% else %}
+                                Atelier Virtuosa
+                            {% endif %}
+                        </strong>
+                        <span>{% if user.is_staff %}Admin{% else %}Usuario{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        {% if messages %}
+        <div class="messages-wrap">
+            {% for message in messages %}
+            <div class="app-message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <main class="content-wrap">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="app-footer">
+            <span></span>
+            <strong>♕</strong>
+            <span></span>
+            <p>Elegancia · Precisión · Excelencia</p>
+        </footer>
+
+    </section>
+
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

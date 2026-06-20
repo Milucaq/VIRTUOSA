@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard · Virtuosa Track{% endblock %}
+{% block page_title %}Dashboard general{% endblock %}
+{% block page_subtitle %}Indicadores principales del atelier y trazabilidad de pedidos{% endblock %}
+
+{% block content %}
+
+<section class="kpi-grid">
+
+    <article class="kpi-card">
+        <div class="kpi-icon pink">♙</div>
+        <span>Pedidos en proceso</span>
+        <strong>{{ total_en_proceso }}</strong>
+        <small>Seguimiento activo</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon beige">✓</div>
+        <span>Pedidos finalizados</span>
+        <strong>{{ total_finalizados }}</strong>
+        <small>Entregas completadas</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon red">◷</div>
+        <span>Pedidos retrasados</span>
+        <strong>{{ total_retrasados }}</strong>
+        <small>Requieren atención</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon green">♧</div>
+        <span>Clientes registrados</span>
+        <strong>{{ total_clientes }}</strong>
+        <small>Base comercial activa</small>
+    </article>
+
+</section>
+
+<section class="dashboard-grid">
+
+    <article class="panel progress-panel">
+        <div class="panel-title-row">
+            <div>
+                <h2>Avance promedio general</h2>
+                <p>Promedio de avance de todos los pedidos registrados.</p>
+            </div>
+
+            <div class="circle-progress" style="--progress: {{ avance_promedio }};">
+                <span>{{ avance_promedio }}%</span>
+            </div>
+        </div>
+
+        <div class="progress-line">
+            <span style="width: {{ avance_promedio }}%;"></span>
+        </div>
+
+        <div class="mini-stats">
+            <div>
+                <small>Diseño</small>
+                <strong>En revisión</strong>
+            </div>
+
+            <div>
+                <small>Confección</small>
+                <strong>Activa</strong>
+            </div>
+
+            <div>
+                <small>Entrega</small>
+                <strong>Programada</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel alerts-panel">
+        <h2>Alertas del día</h2>
+
+        {% for pedido in proximos_vencer %}
+        <a class="alert-row" href="{% url 'detalle_pedido' pedido.id %}">
+            <span class="alert-icon">⌛</span>
+
+            <div>
+                <strong>{{ pedido.codigo }}</strong>
+                <small>Entrega estimada: {{ pedido.fecha_entrega_estimada }}</small>
+            </div>
+
+            <b>›</b>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            No hay alertas pendientes.
+        </div>
+        {% endfor %}
+    </article>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-title-row compact">
+        <div>
+            <h2>Pedidos recientes</h2>
+            <p>Últimas órdenes registradas en el atelier.</p>
+        </div>
+
+        <a href="{% url 'lista_pedidos' %}" class="btn btn-soft">
+            Ver todos los pedidos
+        </a>
+    </div>
+
+    <div class="table-card">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Cliente</th>
+                    <th>Prenda</th>
+                    <th>Estado</th>
+                    <th>Avance</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for pedido in pedidos_recientes %}
+                <tr>
+                    <td class="code-cell">{{ pedido.codigo }}</td>
+                    <td>{{ pedido.cliente.nombre }}</td>
+                    <td>{{ pedido.get_tipo_prenda_display }}</td>
+                    <td>
+                        <span class="status-badge {{ pedido.estado }}">
+                            {{ pedido.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="table-progress">
+                            <small>{{ pedido.porcentaje_avance }}%</small>
+                            <span>
+                                <i style="width: {{ pedido.porcentaje_avance }}%;"></i>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <a class="icon-button" href="{% url 'detalle_pedido' pedido.id %}">
+                            👁
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        No hay pedidos registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar insumo · Virtuosa Track{% endblock %}
+{% block page_title %}Registrar insumo{% endblock %}
+{% block page_subtitle %}Agrega telas, avíos o materiales al inventario del atelier{% endblock %}
+
+{% block content %}
+
+<form method="post" class="designer-form">
+    {% csrf_token %}
+
+    <section class="form-section-card floral-card">
+        <div class="section-heading">
+            <span>◇</span>
+            <h2>Información del insumo</h2>
+        </div>
+
+        <div class="form-grid two">
+
+            <div class="field-box">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+                {{ form.nombre.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.categoria.label_tag }}
+                {{ form.categoria }}
+                {{ form.categoria.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.unidad.label_tag }}
+                {{ form.unidad }}
+                {{ form.unidad.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.stock_actual.label_tag }}
+                {{ form.stock_actual }}
+                {{ form.stock_actual.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.stock_minimo.label_tag }}
+                {{ form.stock_minimo }}
+                {{ form.stock_minimo.errors }}
+            </div>
+
+            <div class="field-box full-field">
+                {{ form.proveedor.label_tag }}
+                {{ form.proveedor }}
+                {{ form.proveedor.errors }}
+            </div>
+
+        </div>
+    </section>
+
+    <section class="panel stock-preview-card">
+        <h2>Vista previa de control</h2>
+
+        <div class="stock-preview-grid">
+            <div>
+                <small>Estado esperado</small>
+                <strong>Disponible / Stock bajo según cantidad</strong>
+            </div>
+
+            <div>
+                <small>Uso en pedidos</small>
+                <strong>Se podrá descontar mediante consumos</strong>
+            </div>
+
+            <div>
+                <small>Control operativo</small>
+                <strong>Apoya la planificación de confección</strong>
+            </div>
+        </div>
+    </section>
+
+    <div class="form-actions split-actions">
+        <a href="{% url 'inventario' %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            Guardar insumo
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

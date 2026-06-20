@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Consulta de pedido · Virtuosa Track{% endblock %}
+{% block page_title %}Consulta de pedido{% endblock %}
+{% block page_subtitle %}Seguimiento del avance visible para clientes{% endblock %}
+
+{% block content %}
+
+<main class="client-page">
+
+    <section class="client-hero-section">
+        <div class="floral-bg left"></div>
+        <div class="floral-bg right"></div>
+
+        <h1>Consulta el avance de tu pedido</h1>
+
+        <p>
+            Ingresa el codigo de tu pedido para conocer su estado actual,
+            el progreso y la fecha estimada de entrega.
+        </p>
+
+        <form method="get" class="client-search-card">
+            <span>⌕</span>
+
+            <input
+                type="text"
+                name="codigo"
+                value="{{ codigo|default:'' }}"
+                placeholder="Ingresa tu codigo de pedido, ej. VIR-2026-001"
+            >
+
+            <button type="submit" class="btn btn-primary">
+                Consultar pedido
+            </button>
+        </form>
+
+    </section>
+
+    {% if pedido %}
+    <section class="client-result-card">
+
+        <div class="client-result-grid">
+
+            <article class="client-order-summary">
+                <span class="section-mini-title">Tu pedido</span>
+
+                <h2>{{ pedido.codigo }}</h2>
+
+                <div class="client-info-row">
+                    <div class="client-icon">♙</div>
+
+                    <div>
+                        <strong>{{ pedido.get_tipo_prenda_display }}</strong>
+                        <small>Alta Costura</small>
+                    </div>
+                </div>
+
+                <div class="client-divider"></div>
+
+                <div class="client-info-row">
+                    <div class="client-icon">▣</div>
+
+                    <div>
+                        <small>Entrega estimada</small>
+                        <strong>{{ pedido.fecha_entrega_estimada }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="client-status-summary">
+                <span class="section-mini-title">Estado actual</span>
+
+                <div class="client-status-badge">
+                    <span class="status-badge {{ pedido.estado }}">
+                        {{ pedido.get_estado_display }}
+                    </span>
+                </div>
+
+                <p>
+                    Tu prenda se encuentra en seguimiento. Nuestro equipo esta trabajando
+                    con dedicacion en cada detalle.
+                </p>
+
+                <span class="section-mini-title">Avance general</span>
+
+                <div class="client-progress-number">
+                    {{ pedido.porcentaje_avance }}%
+                </div>
+
+                <div class="progress-line">
+                    <span style="width: {{ pedido.porcentaje_avance }}%;"></span>
+                </div>
+            </article>
+
+            <article class="client-observation-summary">
+                <span class="section-mini-title">Ultima observacion</span>
+
+                <div class="quote-mark">“</div>
+
+                <p>
+                    {{ pedido.observaciones|default:"El pedido se encuentra registrado correctamente. Pronto se actualizara el avance del proceso." }}
+                </p>
+
+                <small>Actualizacion reciente</small>
+            </article>
+
+        </div>
+
+        <div class="client-divider"></div>
+
+        <section class="client-evidence-section">
+            <div class="panel-title-row compact">
+                <div>
+                    <h2>Evidencias recientes</h2>
+                    <p>Registro fotografico del avance de tu prenda.</p>
+                </div>
+            </div>
+
+            <div class="client-evidence-gallery">
+                {% for evidencia in pedido.evidencias.all|slice:":5" %}
+                <div class="client-evidence-photo">
+                    <button type="button" class="image-preview-button" data-image-url="{{ evidencia.imagen.url }}" data-image-title="{{ evidencia.etapa.nombre|default:'Evidencia' }}">
+                        <img src="{{ evidencia.imagen.url }}" alt="Evidencia del pedido">
+                    </button>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    Todavia no hay evidencias fotograficas disponibles para este pedido.
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div class="client-footer-message">
+            <strong>Cada detalle cuenta, cada paso nos acerca a tu mejor version.</strong>
+            <span>Elegancia · Precision · Excelencia</span>
+        </div>
+
+    </section>
+
+    {% elif codigo %}
+    <section class="client-result-card">
+        <div class="empty-state client-empty">
+            No se encontro ningun pedido con el codigo ingresado.
+            Verifica el codigo o comunicate con Virtuosa.
+        </div>
+    </section>
+    {% endif %}
+
+</main>
+
+{% endblock %}

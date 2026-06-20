@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de pedido · Virtuosa Track{% endblock %}
+{% block page_title %}Detalle de pedido{% endblock %}
+{% block page_subtitle %}Trazabilidad completa del proceso de confección{% endblock %}
+
+{% block content %}
+
+<section class="detail-hero-card">
+
+    <div class="hero-illustration">
+        ♕
+    </div>
+
+    <div class="hero-main-info">
+        <span class="code-label">{{ pedido.codigo }}</span>
+        <h2>{{ pedido.get_tipo_prenda_display }}</h2>
+
+        <p>
+            Cliente:
+            <strong>{{ pedido.cliente.nombre }}</strong>
+        </p>
+    </div>
+
+    <div class="hero-status">
+        <span class="status-badge {{ pedido.estado }}">
+            {{ pedido.get_estado_display }}
+        </span>
+
+        <small>Última actualización</small>
+        <strong>{{ pedido.creado_en|date:"d/m/Y H:i" }}</strong>
+    </div>
+
+    <div class="hero-actions">
+        <a href="{% url 'agregar_etapa' pedido.id %}" class="btn btn-primary">
+            ＋ Agregar etapa
+        </a>
+
+        <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-light">
+            Registrar avance
+        </a>
+
+        <a href="{% url 'agregar_evidencia' pedido.id %}" class="btn btn-light">
+            Subir evidencia
+        </a>
+    </div>
+
+</section>
+
+<section class="summary-grid">
+
+    <article class="summary-card">
+        <span class="summary-icon">♡</span>
+        <small>Cliente</small>
+        <strong>{{ pedido.cliente.nombre }}</strong>
+        <p>{{ pedido.cliente.celular|default:"Sin celular registrado" }}</p>
+        <p>{{ pedido.cliente.correo|default:"Sin correo registrado" }}</p>
+    </article>
+
+    <article class="summary-card">
+        <span class="summary-icon">✂</span>
+        <small>Costurera asignada</small>
+        <strong>{{ pedido.costurera|default:"Sin asignar" }}</strong>
+        <p>Responsable de confección</p>
+    </article>
+
+    <article class="summary-card">
+        <span class="summary-icon">▣</span>
+        <small>Fecha de inicio</small>
+        <strong>{{ pedido.fecha_inicio }}</strong>
+        <p>Inicio del proceso</p>
+    </article>
+
+    <article class="summary-card">
+        <span class="summary-icon">⌛</span>
+        <small>Fecha estimada</small>
+        <strong>{{ pedido.fecha_entrega_estimada }}</strong>
+        <p>Entrega programada</p>
+    </article>
+
+    <article class="summary-card">
+        <span class="summary-icon">◷</span>
+        <small>Estado actual</small>
+        <strong>{{ pedido.get_estado_display }}</strong>
+        <p>Etapa vigente</p>
+    </article>
+
+    <article class="summary-card circle-card">
+        <small>Avance general</small>
+
+        <div class="circle-progress small-circle" style="--progress: {{ pedido.porcentaje_avance }};">
+            <span>{{ pedido.porcentaje_avance }}%</span>
+        </div>
+    </article>
+
+</section>
+
+<section class="panel progress-wide">
+    <div class="progress-wide-row">
+        <strong>Avance total del pedido</strong>
+
+        <div class="progress-line">
+            <span style="width: {{ pedido.porcentaje_avance }}%;"></span>
+        </div>
+
+        <b>{{ pedido.porcentaje_avance }}%</b>
+    </div>
+</section>
+
+<section class="detail-content-grid">
+
+    <article class="panel">
+        <div class="panel-title-row compact">
+            <div>
+                <h2>Etapas del proceso</h2>
+                <p>Secuencia de confección y control de avance.</p>
+            </div>
+        </div>
+
+        <div class="timeline">
+
+            {% for etapa in etapas %}
+            <div class="timeline-item {{ etapa.estado }}">
+                <div class="timeline-marker">
+                    {% if etapa.estado == 'completado' %}
+                        ✓
+                    {% elif etapa.estado == 'en_proceso' %}
+                        {{ forloop.counter }}
+                    {% else %}
+                        {{ forloop.counter }}
+                    {% endif %}
+                </div>
+
+                <div class="timeline-content">
+                    <div>
+                        <strong>{{ etapa.nombre }}</strong>
+
+                        <span class="status-badge {{ etapa.estado }}">
+                            {{ etapa.get_estado_display }}
+                        </span>
+                    </div>
+
+                    <p>{{ etapa.observacion|default:"Sin observaciones registradas." }}</p>
+
+                    <small>
+                        {% if etapa.fecha %}
+                            {{ etapa.fecha }}
+                        {% else %}
+                            Fecha no registrada
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            {% empty %}
+
+            <div class="empty-state">
+                Todavía no se han registrado etapas para este pedido.
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </article>
+
+    <article class="panel evidence-panel">
+        <div class="panel-title-row compact">
+            <div>
+                <h2>Evidencia fotográfica</h2>
+                <p>Registro visual de avances y acabados.</p>
+            </div>
+
+            <a href="{% url 'agregar_evidencia' pedido.id %}" class="btn btn-soft">
+                Subir
+            </a>
+        </div>
+
+        <div class="evidence-gallery">
+
+            {% for evidencia in evidencias %}
+            <div class="evidence-card">
+                <img src="{{ evidencia.imagen.url }}" alt="Evidencia de pedido">
+
+                <div>
+                    <span>{{ evidencia.fecha_subida|date:"d/m/Y" }}</span>
+                    <small>{{ evidencia.descripcion|default:"Evidencia del pedido" }}</small>
+                </div>
+            </div>
+            {% empty %}
+
+            <div class="empty-state">
+                No hay evidencias fotográficas registradas.
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </article>
+
+    <article class="panel observations-panel">
+        <h2>Observaciones</h2>
+
+        <div class="observation-box">
+            <p>
+                {{ pedido.observaciones|default:"No se han registrado observaciones generales para este pedido." }}
+            </p>
+        </div>
+
+        <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-light full">
+            ＋ Agregar observación
+        </a>
+    </article>
+
+</section>
+
+{% endblock %}

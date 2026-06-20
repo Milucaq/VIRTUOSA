@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario · Virtuosa Track{% endblock %}
+{% block page_title %}Inventario{% endblock %}
+{% block page_subtitle %}Control de telas, avios e insumos del atelier{% endblock %}
+
+{% block content %}
+
+<section class="kpi-grid">
+    <article class="kpi-card">
+        <div class="kpi-icon beige">◇</div>
+        <span>Insumos registrados</span>
+        <strong>{{ insumos|length }}</strong>
+        <small>Materiales disponibles</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon red">!</div>
+        <span>Alertas de stock</span>
+        <strong>{{ total_stock_bajo }}</strong>
+        <small>Requieren reposicion</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon green">✓</div>
+        <span>Control operativo</span>
+        <strong>OK</strong>
+        <small>Conectado a pedidos</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon pink">＋</div>
+        <span>Nuevo registro</span>
+        <strong>+</strong>
+        <small><a href="{% url 'crear_insumo' %}">Agregar insumo</a></small>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-title-row compact">
+        <div>
+            <h2>Stock de insumos</h2>
+            <p>Consulta disponibilidad, unidad de medida y alertas de stock bajo.</p>
+        </div>
+
+        <a href="{% url 'crear_insumo' %}" class="btn btn-primary">
+            ＋ Nuevo insumo
+        </a>
+    </div>
+
+    <div class="table-card">
+        <table class="premium-table large-table">
+            <thead>
+                <tr>
+                    <th>Insumo</th>
+                    <th>Categoria</th>
+                    <th>Stock actual</th>
+                    <th>Stock minimo</th>
+                    <th>Proveedor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for insumo in insumos %}
+                <tr>
+                    <td>
+                        <div class="inventory-name">
+                            <span>◇</span>
+                            <strong>{{ insumo.nombre }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ insumo.categoria }}</td>
+                    <td>{{ insumo.stock_actual }} {{ insumo.get_unidad_display }}</td>
+                    <td>{{ insumo.stock_minimo }} {{ insumo.get_unidad_display }}</td>
+                    <td>{{ insumo.proveedor|default:"Sin proveedor" }}</td>
+                    <td>
+                        {% if insumo.stock_bajo %}
+                            <span class="status-badge retrasado">Stock bajo</span>
+                        {% else %}
+                            <span class="status-badge finalizado">Disponible</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        No hay insumos registrados en el inventario.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login · Virtuosa Track</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link 
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" 
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="login-body">
+
+<section class="login-layout">
+
+    <div class="login-art">
+        <div class="login-art-content">
+            <div class="brand-emblem large">V</div>
+
+            <h1>
+                VIRTUOSA
+                <span>TRACK</span>
+            </h1>
+
+            <p>Atelier Management</p>
+
+            <div class="ornament-line"></div>
+
+            <h2>Elegancia, precisión y trazabilidad en cada prenda.</h2>
+        </div>
+    </div>
+
+    <div class="login-form-zone">
+        <div class="login-card">
+
+            <div class="login-logo">
+                <div class="brand-emblem">V</div>
+                <h2>VIRTUOSA TRACK</h2>
+                <p>Gestión inteligente para confección artesanal</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="app-message danger">
+                Usuario o contraseña incorrectos. Verifica tus credenciales.
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" class="login-form">
+                {% csrf_token %}
+
+                <label for="id_username">Usuario</label>
+                <div class="input-with-icon">
+                    <span>♡</span>
+                    <input 
+                        id="id_username" 
+                        type="text" 
+                        name="username" 
+                        placeholder="Ingresa tu usuario" 
+                        required
+                    >
+                </div>
+
+                <label for="id_password">Contraseña</label>
+                <div class="input-with-icon">
+                    <span>🔒</span>
+                    <input 
+                        id="id_password" 
+                        type="password" 
+                        name="password" 
+                        placeholder="Ingresa tu contraseña" 
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary full">
+                    Iniciar sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

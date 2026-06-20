@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar etapa · Virtuosa Track{% endblock %}
+{% block page_title %}Agregar etapa de confección{% endblock %}
+{% block page_subtitle %}Registra una nueva fase dentro del proceso de trazabilidad{% endblock %}
+
+{% block content %}
+
+<section class="panel order-resume-card compact-resume">
+
+    <div class="resume-image small">
+        <div class="placeholder-dress">♕</div>
+    </div>
+
+    <div class="resume-info">
+        <h2>Pedido actual</h2>
+
+        <div class="resume-grid">
+            <div>
+                <small>Código</small>
+                <strong>{{ pedido.codigo }}</strong>
+            </div>
+
+            <div>
+                <small>Cliente</small>
+                <strong>{{ pedido.cliente.nombre }}</strong>
+            </div>
+
+            <div>
+                <small>Prenda</small>
+                <strong>{{ pedido.get_tipo_prenda_display }}</strong>
+            </div>
+
+            <div>
+                <small>Avance</small>
+                <strong>{{ pedido.porcentaje_avance }}%</strong>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<form method="post" class="panel designer-form">
+    {% csrf_token %}
+
+    <div class="panel-title-row">
+        <div>
+            <h2>Nueva etapa del proceso</h2>
+            <p>Completa la información de la etapa realizada o programada.</p>
+        </div>
+    </div>
+
+    <div class="form-grid two">
+
+        <div class="field-box">
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+        </div>
+
+        <div class="field-box">
+            {{ form.estado.label_tag }}
+            {{ form.estado }}
+            {{ form.estado.errors }}
+        </div>
+
+        <div class="field-box">
+            {{ form.fecha.label_tag }}
+            {{ form.fecha }}
+            {{ form.fecha.errors }}
+        </div>
+
+        <div class="field-box full-field">
+            {{ form.observacion.label_tag }}
+            {{ form.observacion }}
+            {{ form.observacion.errors }}
+        </div>
+
+    </div>
+
+    <div class="form-actions center-actions">
+        <a href="{% url 'detalle_pedido' pedido.id %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            Guardar etapa
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

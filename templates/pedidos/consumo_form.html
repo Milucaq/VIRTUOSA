@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar consumo · Virtuosa Track{% endblock %}
+{% block page_title %}Registrar consumo de insumo{% endblock %}
+{% block page_subtitle %}Asocia el uso de materiales a un pedido de confección{% endblock %}
+
+{% block content %}
+
+<form method="post" class="designer-form">
+    {% csrf_token %}
+
+    <section class="panel consumption-context-card">
+        <div>
+            <span class="section-mini-title">Movimiento de inventario</span>
+            <h2>Salida de insumo por pedido</h2>
+            <p>
+                Este registro permite controlar qué materiales fueron utilizados en la elaboración 
+                de una prenda y mantener actualizado el stock disponible.
+            </p>
+        </div>
+
+        <div class="context-icon">
+            ◇
+        </div>
+    </section>
+
+    <section class="form-section-card">
+        <div class="section-heading">
+            <span>▤</span>
+            <h2>Detalle del consumo</h2>
+        </div>
+
+        <div class="form-grid two">
+
+            <div class="field-box">
+                {{ form.pedido.label_tag }}
+                {{ form.pedido }}
+                {{ form.pedido.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.insumo.label_tag }}
+                {{ form.insumo }}
+                {{ form.insumo.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.cantidad.label_tag }}
+                {{ form.cantidad }}
+                {{ form.cantidad.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.fecha_consumo.label_tag }}
+                {{ form.fecha_consumo }}
+                {{ form.fecha_consumo.errors }}
+            </div>
+
+            <div class="field-box full-field">
+                {{ form.observacion.label_tag }}
+                {{ form.observacion }}
+                {{ form.observacion.errors }}
+            </div>
+
+        </div>
+    </section>
+
+    <section class="panel advice-panel">
+        <strong>Recomendación operativa</strong>
+        <p>
+            Verifica que la cantidad consumida corresponda al material usado en el pedido. 
+            Esto permitirá mantener una trazabilidad más precisa entre producción e inventario.
+        </p>
+    </section>
+
+    <div class="form-actions split-actions">
+        <a href="{% url 'inventario' %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            Registrar consumo
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

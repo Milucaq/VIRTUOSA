@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar avance · Virtuosa Track{% endblock %}
+{% block page_title %}Registrar avance del pedido{% endblock %}
+{% block page_subtitle %}Actualiza el porcentaje, estado y observaciones del pedido{% endblock %}
+
+{% block content %}
+
+<section class="panel order-resume-card">
+
+    <div class="resume-image">
+        {% with primera_evidencia=pedido.evidencias.first %}
+            {% if primera_evidencia %}
+                <img src="{{ primera_evidencia.imagen.url }}" alt="Imagen del pedido">
+            {% else %}
+                <div class="placeholder-dress">♕</div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="resume-info">
+        <h2>Resumen del pedido</h2>
+
+        <div class="resume-grid">
+            <div>
+                <small>Código</small>
+                <strong>{{ pedido.codigo }}</strong>
+            </div>
+
+            <div>
+                <small>Cliente</small>
+                <strong>{{ pedido.cliente.nombre }}</strong>
+            </div>
+
+            <div>
+                <small>Prenda</small>
+                <strong>{{ pedido.get_tipo_prenda_display }}</strong>
+            </div>
+
+            <div>
+                <small>Fecha de entrega</small>
+                <strong>{{ pedido.fecha_entrega_estimada }}</strong>
+            </div>
+
+            <div>
+                <small>Estado actual</small>
+                <span class="status-badge {{ pedido.estado }}">
+                    {{ pedido.get_estado_display }}
+                </span>
+            </div>
+
+            <div>
+                <small>Avance actual</small>
+                <strong>{{ pedido.porcentaje_avance }}%</strong>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<form method="post" class="panel designer-form advance-form-card">
+    {% csrf_token %}
+
+    <div class="panel-title-row">
+        <div>
+            <h2>Registrar nuevo avance</h2>
+            <p>Indica el nuevo porcentaje de avance y el estado actualizado del pedido.</p>
+        </div>
+    </div>
+
+    <div class="advance-layout">
+
+        <div class="advance-visual">
+            <label>Porcentaje de avance</label>
+
+            <div class="circle-progress large-circle" style="--progress: {{ pedido.porcentaje_avance }};">
+                <span>{{ pedido.porcentaje_avance }}%</span>
+            </div>
+
+            <div class="range-field compact-range">
+                {{ form.porcentaje_avance }}
+            </div>
+
+            <small>
+                Arrastra el control o ingresa el porcentaje para actualizar el avance.
+            </small>
+        </div>
+
+        <div class="advance-fields">
+
+            <div class="field-box">
+                {{ form.estado.label_tag }}
+                {{ form.estado }}
+                {{ form.estado.errors }}
+            </div>
+
+            <div class="field-box full-field">
+                {{ form.observaciones.label_tag }}
+                {{ form.observaciones }}
+                {{ form.observaciones.errors }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="preview-progress-box">
+        <strong>Vista previa del progreso</strong>
+
+        <div class="table-progress wide">
+            <small>{{ pedido.porcentaje_avance }}%</small>
+
+            <span>
+                <i style="width: {{ pedido.porcentaje_avance }}%;"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="form-actions center-actions">
+        <a href="{% url 'detalle_pedido' pedido.id %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            Guardar avance
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

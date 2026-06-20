@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel costurera · Virtuosa Track{% endblock %}
+{% block page_title %}Panel de costurera{% endblock %}
+{% block page_subtitle %}Pedidos asignados y registro de avances de confección{% endblock %}
+
+{% block content %}
+
+<section class="seamstress-welcome">
+
+    <div>
+        <h2>
+            ¡Bienvenida{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}!
+        </h2>
+
+        <p>
+            Aquí puedes ver tus pedidos asignados, revisar detalles de confección y registrar avances.
+        </p>
+    </div>
+
+    <div class="sewing-illustration">
+        ✂
+    </div>
+
+</section>
+
+<section class="kpi-grid seamstress-kpis">
+
+    <article class="kpi-card">
+        <div class="kpi-icon pink">▤</div>
+        <span>Pedidos asignados</span>
+        <strong>{{ pedidos|length }}</strong>
+        <small>Órdenes activas</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon beige">✂</div>
+        <span>En confección</span>
+        <strong>
+            {% with total=0 %}
+                {{ total }}
+            {% endwith %}
+        </strong>
+        <small>Requieren avance</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon red">◷</div>
+        <span>Por iniciar</span>
+        <strong>0</strong>
+        <small>Pedidos pendientes</small>
+    </article>
+
+    <article class="kpi-card">
+        <div class="kpi-icon green">✓</div>
+        <span>Completados</span>
+        <strong>0</strong>
+        <small>Finalizados</small>
+    </article>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-title-row compact">
+        <div>
+            <h2>Pedidos asignados</h2>
+            <p>Consulta cada pedido y actualiza el avance correspondiente.</p>
+        </div>
+
+        <div class="search-box small-search">
+            <span>⌕</span>
+            <input type="text" placeholder="Buscar pedido o cliente...">
+        </div>
+    </div>
+
+    <div class="assigned-list">
+
+        {% for pedido in pedidos %}
+        <article class="assigned-card">
+
+            <div class="assigned-main">
+                <span class="code-cell">{{ pedido.codigo }}</span>
+
+                <div>
+                    <strong>{{ pedido.cliente.nombre }}</strong>
+                    <small>{{ pedido.get_tipo_prenda_display }}</small>
+                </div>
+            </div>
+
+            <div>
+                <small>Fecha estimada</small>
+                <strong>{{ pedido.fecha_entrega_estimada }}</strong>
+            </div>
+
+            <div>
+                <span class="status-badge {{ pedido.estado }}">
+                    {{ pedido.get_estado_display }}
+                </span>
+            </div>
+
+            <div class="table-progress">
+                <small>{{ pedido.porcentaje_avance }}%</small>
+
+                <span>
+                    <i style="width: {{ pedido.porcentaje_avance }}%;"></i>
+                </span>
+            </div>
+
+            <div class="assigned-actions">
+                <a href="{% url 'detalle_pedido' pedido.id %}" class="btn btn-light small">
+                    Ver detalle
+                </a>
+
+                <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-primary small">
+                    Registrar avance
+                </a>
+            </div>
+
+        </article>
+        {% empty %}
+
+        <div class="empty-state">
+            No tienes pedidos asignados actualmente.
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}

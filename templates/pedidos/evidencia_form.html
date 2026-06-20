@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Subir evidencia · Virtuosa Track{% endblock %}
+{% block page_title %}Subir evidencia fotográfica{% endblock %}
+{% block page_subtitle %}Registra imágenes del avance de confección del pedido{% endblock %}
+
+{% block content %}
+
+<section class="evidence-upload-grid">
+
+    <article class="panel order-mini-card">
+        <h2>Resumen del pedido</h2>
+
+        <div class="mini-order-content">
+            <div class="mini-dress">
+                ♕
+            </div>
+
+            <div>
+                <h3>{{ pedido.codigo }}</h3>
+                <p>{{ pedido.get_tipo_prenda_display }}</p>
+
+                <div class="mini-order-data">
+                    <span>Cliente</span>
+                    <strong>{{ pedido.cliente.nombre }}</strong>
+
+                    <span>Fecha de entrega</span>
+                    <strong>{{ pedido.fecha_entrega_estimada }}</strong>
+
+                    <span>Estado actual</span>
+                    <strong>{{ pedido.get_estado_display }}</strong>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel order-mini-progress">
+        <h2>Progreso del pedido</h2>
+
+        <div class="progress-line">
+            <span style="width: {{ pedido.porcentaje_avance }}%;"></span>
+        </div>
+
+        <strong>{{ pedido.porcentaje_avance }}%</strong>
+
+        <small>Etapa actual</small>
+        <p>{{ pedido.get_estado_display }}</p>
+    </article>
+
+</section>
+
+<form method="post" enctype="multipart/form-data" class="evidence-upload-grid designer-form">
+    {% csrf_token %}
+
+    <section class="panel upload-panel">
+
+        <h2>Sube imágenes de tu evidencia</h2>
+
+        <label class="upload-box" for="id_imagen">
+            <span class="upload-icon">☁</span>
+            <strong>Arrastra y suelta tus imágenes aquí</strong>
+            <small>o haz clic para seleccionar archivos</small>
+            <em>Formatos permitidos: JPG, PNG, WEBP</em>
+        </label>
+
+        <div class="hidden-file-input">
+            {{ form.imagen }}
+        </div>
+
+        <div class="preview-zone" id="imagePreview">
+            <div class="preview-placeholder">
+                Vista previa de la imagen seleccionada
+            </div>
+        </div>
+
+    </section>
+
+    <section class="panel upload-fields-panel">
+
+        <div class="field-box">
+            {{ form.etapa.label_tag }}
+            {{ form.etapa }}
+            {{ form.etapa.errors }}
+        </div>
+
+        <div class="field-box full-field">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+            {{ form.descripcion.errors }}
+        </div>
+
+        <div class="advice-box">
+            Asegúrate de que la imagen sea clara y esté bien iluminada para facilitar la revisión.
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'detalle_pedido' pedido.id %}" class="btn btn-light">
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Subir evidencia
+            </button>
+        </div>
+
+    </section>
+
+</form>
+
+{% endblock %}

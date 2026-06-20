@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo pedido · Virtuosa Track{% endblock %}
+{% block page_title %}Nuevo pedido de confección{% endblock %}
+{% block page_subtitle %}Registra una nueva orden y asígnala al flujo de trazabilidad{% endblock %}
+
+{% block content %}
+
+<form method="post" class="designer-form">
+    {% csrf_token %}
+
+    <section class="form-section-card floral-card">
+        <div class="section-heading">
+            <span>♙</span>
+            <h2>Información principal</h2>
+        </div>
+
+        <div class="form-grid three">
+            <div class="field-box">
+                {{ form.cliente.label_tag }}
+                {{ form.cliente }}
+                {{ form.cliente.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.tipo_prenda.label_tag }}
+                {{ form.tipo_prenda }}
+                {{ form.tipo_prenda.errors }}
+            </div>
+
+            <div class="field-box">
+                <label>Codigo de pedido</label>
+                <input type="text" value="Se generara automaticamente" disabled>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-section-card">
+        <div class="section-heading">
+            <span>✂</span>
+            <h2>Detalle de la prenda</h2>
+        </div>
+
+        <div class="field-box full-field">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+            {{ form.descripcion.errors }}
+        </div>
+    </section>
+
+    <section class="form-section-card">
+        <div class="section-heading">
+            <span>▣</span>
+            <h2>Fechas y asignación</h2>
+        </div>
+
+        <div class="form-grid four">
+            <div class="field-box">
+                {{ form.fecha_inicio.label_tag }}
+                {{ form.fecha_inicio }}
+                {{ form.fecha_inicio.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.fecha_entrega_estimada.label_tag }}
+                {{ form.fecha_entrega_estimada }}
+                {{ form.fecha_entrega_estimada.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.costurera.label_tag }}
+                {{ form.costurera }}
+                {{ form.costurera.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.estado.label_tag }}
+                {{ form.estado }}
+                {{ form.estado.errors }}
+            </div>
+        </div>
+
+        <div class="range-field">
+            {{ form.porcentaje_avance.label_tag }}
+            {{ form.porcentaje_avance }}
+
+            <div class="range-preview">
+                <span>0%</span>
+                <i></i>
+                <span>100%</span>
+            </div>
+
+            {{ form.porcentaje_avance.errors }}
+        </div>
+    </section>
+
+    <section class="form-section-card">
+        <div class="section-heading">
+            <span>☷</span>
+            <h2>Observaciones</h2>
+        </div>
+
+        <div class="field-box full-field">
+            {{ form.observaciones.label_tag }}
+            {{ form.observaciones }}
+            {{ form.observaciones.errors }}
+        </div>
+    </section>
+
+    <div class="form-actions split-actions">
+        <a href="{% url 'lista_pedidos' %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button class="btn btn-primary" type="submit">
+            Guardar pedido
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}
