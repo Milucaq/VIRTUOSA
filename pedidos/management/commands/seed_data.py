@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from pedidos.models import Cliente, Costurera, Insumo, Pedido, EvidenciaPedido
 from pedidos.views import crear_etapas_estandar
+from pedidos import historial
 
 CLIENTES = [
     {'nombre': 'Valeria Mendoza', 'celular': '987654321', 'correo': 'valeria.mendoza@example.com', 'direccion': 'Av. Larco 123, Miraflores'},
@@ -40,6 +41,17 @@ PEDIDOS = [
     {'codigo': 'VIR-2026-106', 'cliente': 'Valeria Mendoza', 'tipo_prenda': 'otro', 'costurera': 'Carmen Huaman', 'estado': 'entregado', 'avance': 100, 'dias_inicio': -45, 'dias_entrega': -15},
     {'codigo': 'VIR-2026-107', 'cliente': 'Camila Rojas', 'tipo_prenda': 'blusa_medida', 'costurera': None, 'estado': 'pendiente', 'avance': 0, 'dias_inicio': 0, 'dias_entrega': 20},
     {'codigo': 'VIR-2026-108', 'cliente': 'Fernanda Castillo', 'tipo_prenda': 'falda', 'costurera': 'Rosa Quispe', 'estado': 'en_proceso', 'avance': 30, 'dias_inicio': -5, 'dias_entrega': 15},
+    # Pedidos con creado_en retroactivo: alimentan "Pedidos registrados por mes"
+    # con varios meses de historia, y suman retrasos en mas costureras para
+    # que "Pedidos retrasados por costurera" no dependa de un solo caso.
+    {'codigo': 'VIR-2026-109', 'cliente': 'Gabriela Soto', 'tipo_prenda': 'enterizo', 'costurera': 'Lucia Fernandez', 'estado': 'retrasado', 'avance': 35, 'dias_inicio': -60, 'dias_entrega': -20, 'dias_creado': -65},
+    {'codigo': 'VIR-2026-110', 'cliente': 'Daniela Torres', 'tipo_prenda': 'vestido_noche', 'costurera': 'Carmen Huaman', 'estado': 'retrasado', 'avance': 50, 'dias_inicio': -50, 'dias_entrega': -10, 'dias_creado': -55},
+    {'codigo': 'VIR-2026-111', 'cliente': 'Valeria Mendoza', 'tipo_prenda': 'blusa_medida', 'costurera': 'Rosa Quispe', 'estado': 'retrasado', 'avance': 20, 'dias_inicio': -40, 'dias_entrega': -8, 'dias_creado': -45},
+    {'codigo': 'VIR-2026-112', 'cliente': 'Camila Rojas', 'tipo_prenda': 'falda', 'costurera': 'Lucia Fernandez', 'estado': 'finalizado', 'avance': 100, 'dias_inicio': -90, 'dias_entrega': -60, 'dias_creado': -95},
+    {'codigo': 'VIR-2026-113', 'cliente': 'Fernanda Castillo', 'tipo_prenda': 'otro', 'costurera': 'Carmen Huaman', 'estado': 'entregado', 'avance': 100, 'dias_inicio': -120, 'dias_entrega': -100, 'dias_creado': -125},
+    {'codigo': 'VIR-2026-114', 'cliente': 'Gabriela Soto', 'tipo_prenda': 'vestido_noche', 'costurera': 'Rosa Quispe', 'estado': 'en_proceso', 'avance': 60, 'dias_inicio': -20, 'dias_entrega': 10, 'dias_creado': -25},
+    {'codigo': 'VIR-2026-115', 'cliente': 'Daniela Torres', 'tipo_prenda': 'enterizo', 'costurera': None, 'estado': 'pendiente', 'avance': 0, 'dias_inicio': -3, 'dias_entrega': 25, 'dias_creado': -3},
+    {'codigo': 'VIR-2026-116', 'cliente': 'Valeria Mendoza', 'tipo_prenda': 'falda', 'costurera': 'Carmen Huaman', 'estado': 'finalizado', 'avance': 100, 'dias_inicio': -150, 'dias_entrega': -130, 'dias_creado': -150},
 ]
 
 
@@ -94,6 +106,24 @@ class Command(BaseCommand):
                 porcentaje_avance=data['avance'],
             )
             crear_etapas_estandar(pedido)
+
+            dias_creado = data.get('dias_creado')
+            fecha_creacion = timezone.now()
+            if dias_creado is not None:
+                fecha_creacion = fecha_creacion + timedelta(days=dias_creado)
+                Pedido.objects.filter(pk=pedido.pk).update(creado_en=fecha_creacion)
+
+            coleccion = historial._get_coleccion()
+            if coleccion is not None:
+                coleccion.insert_one({
+                    'pedido_id': pedido.id,
+                    'codigo': pedido.codigo,
+                    'tipo': 'creacion',
+                    'detalle': 'Pedido registrado',
+                    'usuario': 'admin',
+                    'fecha': fecha_creacion,
+                })
+
             pedidos_creados.append(pedido)
             self.stdout.write(self.style.SUCCESS(f'Pedido creado: {pedido.codigo}'))
 
