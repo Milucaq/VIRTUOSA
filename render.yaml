@@ -42,3 +42,5 @@ services:
         sync: false
       - key: BREVO_API_KEY
         sync: false
+      - key: HF_TOKEN
+        sync: false
