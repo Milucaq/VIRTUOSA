@@ -51,24 +51,31 @@ class EtapaPedidoForm(forms.ModelForm):
         }
 
 
-class EvidenciaPedidoForm(forms.ModelForm):
+class EtapaEstadoForm(forms.ModelForm):
+    """Una fila del formset de 'Actualizar pedido': solo el estado de la
+    etapa es editable ahi, el resto (nombre, fecha) se muestra de solo lectura."""
+    class Meta:
+        model = EtapaPedido
+        fields = ['estado']
+
+
+class EvidenciaRapidaForm(forms.ModelForm):
+    """Subida de foto opcional dentro de 'Actualizar pedido': a diferencia
+    de EvidenciaPedidoForm, la imagen no es obligatoria porque no siempre
+    hay una foto nueva cada vez que se actualizan etapas."""
     class Meta:
         model = EvidenciaPedido
-        fields = [
-            'etapa',
-            'imagen',
-            'descripcion',
-        ]
+        fields = ['imagen', 'descripcion']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['imagen'].required = False
 
 
-class AvancePedidoForm(forms.ModelForm):
+class ObservacionesPedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
-        fields = [
-            'estado',
-            'porcentaje_avance',
-            'observaciones',
-        ]
+        fields = ['observaciones']
         widgets = {
             'observaciones': forms.Textarea(attrs={'rows': 3}),
         }

@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from pedidos.models import Cliente, Costurera, Insumo, Pedido, EvidenciaPedido
-from pedidos.views import crear_etapas_estandar
+from pedidos.views import crear_etapas_estandar, ETAPAS_ESTANDAR
 from pedidos import historial
 
 CLIENTES = [
@@ -102,10 +102,25 @@ class Command(BaseCommand):
                 fecha_inicio=hoy + timedelta(days=data['dias_inicio']),
                 fecha_entrega_estimada=hoy + timedelta(days=data['dias_entrega']),
                 costurera=costureras.get(data['costurera']) if data['costurera'] else None,
-                estado=data['estado'],
-                porcentaje_avance=data['avance'],
             )
             crear_etapas_estandar(pedido)
+
+            # El estado/avance ya no se fijan a mano: se marcan etapas como
+            # completadas segun el 'avance' deseado y se deja que
+            # Pedido.recalcular_progreso() derive el resto, igual que en el
+            # flujo real de "Actualizar pedido". 'entregado' es la unica
+            # excepcion porque esa confirmacion no se puede inferir solo.
+            completadas_objetivo = round((data['avance'] / 100) * len(ETAPAS_ESTANDAR))
+            for indice, etapa in enumerate(pedido.etapas.order_by('id')):
+                if indice < completadas_objetivo:
+                    etapa.estado = 'completado'
+                    etapa.fecha = pedido.fecha_inicio
+                    etapa.save(update_fields=['estado', 'fecha'])
+
+            pedido.recalcular_progreso()
+            if data['estado'] == 'entregado':
+                pedido.estado = 'entregado'
+            pedido.save()
 
             dias_creado = data.get('dias_creado')
             fecha_creacion = timezone.now()

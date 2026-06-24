@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+from django.forms import modelformset_factory
 from django.db.models import Count, Avg, Q
 from django.db.models.functions import TruncMonth
 from .models import Pedido, Costurera, Cliente, EtapaPedido, Insumo
@@ -10,8 +12,9 @@ from . import historial
 from .forms import (
     PedidoForm,
     EtapaPedidoForm,
-    EvidenciaPedidoForm,
-    AvancePedidoForm,
+    EtapaEstadoForm,
+    EvidenciaRapidaForm,
+    ObservacionesPedidoForm,
     InsumoForm,
     ConsumoInsumoForm,
     CostureraForm,
@@ -173,32 +176,14 @@ def agregar_etapa(request, pedido_id):
             etapa = form.save(commit=False)
             etapa.pedido = pedido
             etapa.save()
+            pedido.recalcular_progreso()
+            pedido.save()
             historial.registrar_evento(pedido, 'etapa_agregada', etapa.nombre, request.user)
             return redirect('detalle_pedido', pedido_id=pedido.id)
     else:
         form = EtapaPedidoForm()
 
     return render(request, 'pedidos/etapa_form.html', {
-        'form': form,
-        'pedido': pedido,
-    })
-
-
-@login_required
-def agregar_evidencia(request, pedido_id):
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-
-    if request.method == 'POST':
-        form = EvidenciaPedidoForm(request.POST, request.FILES)
-        if form.is_valid():
-            evidencia = form.save(commit=False)
-            evidencia.pedido = pedido
-            evidencia.save()
-            return redirect('detalle_pedido', pedido_id=pedido.id)
-    else:
-        form = EvidenciaPedidoForm()
-
-    return render(request, 'pedidos/evidencia_form.html', {
         'form': form,
         'pedido': pedido,
     })
@@ -399,29 +384,82 @@ def panel_costurera(request):
     })
 
 
+def _es_responsable_del_pedido(user, pedido):
+    if user.is_staff:
+        return True
+    return bool(pedido.costurera and pedido.costurera.usuario_id == user.id)
+
+
+EtapaEstadoFormSet = modelformset_factory(EtapaPedido, form=EtapaEstadoForm, extra=0)
+
+
 @login_required
-def actualizar_avance_pedido(request, pedido_id):
+def actualizar_progreso_pedido(request, pedido_id):
+    """Pantalla unica para mover el progreso de un pedido: editar el estado
+    de cada etapa, subir evidencia opcional y anotar observaciones. El %
+    de avance y el estado general del pedido ya no se escriben a mano aqui,
+    se derivan de las etapas via Pedido.recalcular_progreso()."""
     pedido = get_object_or_404(Pedido, id=pedido_id)
+    etapas_qs = pedido.etapas.order_by('id')
 
     if request.method == 'POST':
-        form = AvancePedidoForm(request.POST, instance=pedido)
-        if form.is_valid():
-            form.save()
+        etapas_formset = EtapaEstadoFormSet(request.POST, prefix='etapas', queryset=etapas_qs)
+        evidencia_form = EvidenciaRapidaForm(request.POST, request.FILES, prefix='evidencia')
+        obs_form = ObservacionesPedidoForm(request.POST, prefix='obs', instance=pedido)
+
+        if etapas_formset.is_valid() and evidencia_form.is_valid() and obs_form.is_valid():
+            etapas_formset.save()
+            obs_form.save(commit=False)
+            pedido.recalcular_progreso()
+            pedido.save()
+
+            if evidencia_form.cleaned_data.get('imagen'):
+                evidencia = evidencia_form.save(commit=False)
+                evidencia.pedido = pedido
+                evidencia.save()
+
             historial.registrar_evento(
                 pedido,
                 'avance_actualizado',
                 f'{pedido.get_estado_display()} · {pedido.porcentaje_avance}%',
                 request.user,
             )
-            messages.success(request, f'Avance del pedido {pedido.codigo} actualizado.')
+            messages.success(request, f'Progreso del pedido {pedido.codigo} actualizado.')
+            if request.user.is_staff:
+                return redirect('detalle_pedido', pedido_id=pedido.id)
             return redirect('panel_costurera')
     else:
-        form = AvancePedidoForm(instance=pedido)
+        etapas_formset = EtapaEstadoFormSet(prefix='etapas', queryset=etapas_qs)
+        evidencia_form = EvidenciaRapidaForm(prefix='evidencia')
+        obs_form = ObservacionesPedidoForm(prefix='obs', instance=pedido)
 
     return render(request, 'pedidos/avance_pedido_form.html', {
-        'form': form,
         'pedido': pedido,
+        'etapas_formset': etapas_formset,
+        'evidencia_form': evidencia_form,
+        'obs_form': obs_form,
+        'etapas_con_form': zip(etapas_qs, etapas_formset.forms),
     })
+
+
+@login_required
+@require_POST
+def marcar_entregado(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if not _es_responsable_del_pedido(request.user, pedido):
+        messages.error(request, 'No tienes permiso para marcar este pedido como entregado.')
+        return redirect('detalle_pedido', pedido_id=pedido.id)
+
+    if pedido.estado != 'finalizado':
+        messages.error(request, 'El pedido debe estar finalizado (todas las etapas completadas) antes de marcarlo como entregado.')
+        return redirect('detalle_pedido', pedido_id=pedido.id)
+
+    pedido.estado = 'entregado'
+    pedido.save()
+    historial.registrar_evento(pedido, 'avance_actualizado', 'Entregado al cliente', request.user)
+    messages.success(request, f'Pedido {pedido.codigo} marcado como entregado.')
+    return redirect('detalle_pedido', pedido_id=pedido.id)
 
 
 @ensure_csrf_cookie

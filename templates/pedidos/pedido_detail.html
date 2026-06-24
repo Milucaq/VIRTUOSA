@@ -32,17 +32,16 @@
     </div>
 
     <div class="hero-actions">
-        <a href="{% url 'agregar_etapa' pedido.id %}" class="btn btn-primary">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Agregar etapa
+        <a href="{% url 'actualizar_progreso_pedido' pedido.id %}" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Actualizar pedido
         </a>
 
-        <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-light">
-            Registrar avance
-        </a>
-
-        <a href="{% url 'agregar_evidencia' pedido.id %}" class="btn btn-light">
-            Subir evidencia
-        </a>
+        {% if pedido.estado == 'finalizado' %}
+        <form method="post" action="{% url 'marcar_entregado' pedido.id %}" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-light">Marcar como entregado</button>
+        </form>
+        {% endif %}
     </div>
 
 </section>
@@ -169,7 +168,7 @@
                 <p>Registro visual de avances y acabados.</p>
             </div>
 
-            <a href="{% url 'agregar_evidencia' pedido.id %}" class="btn btn-soft">
+            <a href="{% url 'actualizar_progreso_pedido' pedido.id %}" class="btn btn-soft">
                 Subir
             </a>
         </div>
@@ -205,7 +204,7 @@
             </p>
         </div>
 
-        <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-light full">
+        <a href="{% url 'actualizar_progreso_pedido' pedido.id %}" class="btn btn-light full">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Agregar observación
         </a>
     </article>

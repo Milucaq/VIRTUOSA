@@ -85,6 +85,28 @@ class Pedido(models.Model):
             self.codigo = self.generar_codigo()
         super().save(*args, **kwargs)
 
+    def recalcular_progreso(self):
+        """Deriva porcentaje_avance y estado a partir de las etapas reales,
+        en vez de dejarlos como campos sueltos que alguien puede desincronizar
+        a mano. 'entregado' nunca se pisa aqui: es una confirmacion manual
+        explicita, no algo que se pueda inferir de las etapas."""
+        etapas = list(self.etapas.all())
+        total = len(etapas)
+        completadas = sum(1 for etapa in etapas if etapa.estado == 'completado')
+        self.porcentaje_avance = round((completadas / total) * 100) if total else 0
+
+        if self.estado == 'entregado':
+            return
+
+        if total and completadas == total:
+            self.estado = 'finalizado'
+        elif self.fecha_entrega_estimada and self.fecha_entrega_estimada < timezone.now().date():
+            self.estado = 'retrasado'
+        elif completadas > 0 or any(etapa.estado == 'en_proceso' for etapa in etapas):
+            self.estado = 'en_proceso'
+        else:
+            self.estado = 'pendiente'
+
     def __str__(self):
         return f"{self.codigo} - {self.cliente.nombre}"
 
