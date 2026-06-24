@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Costureras · Virtuosa Track{% endblock %}
+{% block page_title %}Gestión de costureras{% endblock %}
+{% block page_subtitle %}Equipo de confección del atelier{% endblock %}
+
+{% block content %}
+
+<section class="panel filter-panel">
+    <div class="filters-row">
+        <a href="{% url 'crear_costurera' %}" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Nueva costurera
+        </a>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="table-card">
+        <table class="premium-table large-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Especialidad</th>
+                    <th>Disponibilidad</th>
+                    <th>Pedidos asignados</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for costurera in costureras %}
+                <tr>
+                    <td><strong>{{ costurera.nombre }}</strong></td>
+                    <td>{{ costurera.especialidad|default:'Sin especificar' }}</td>
+                    <td>{{ costurera.disponibilidad|default:'Sin especificar' }}</td>
+                    <td>{{ costurera.pedidos_asignados }}</td>
+                    <td>
+                        {% if costurera.activa %}
+                        <span class="status-badge finalizado">Activa</span>
+                        {% else %}
+                        <span class="status-badge retrasado">Inactiva</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="icon-button" href="{% url 'editar_costurera' costurera.id %}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                        </a>
+                        <a class="icon-button" href="{% url 'eliminar_costurera' costurera.id %}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        No hay costureras registradas.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

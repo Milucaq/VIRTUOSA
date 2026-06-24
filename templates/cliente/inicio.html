@@ -1,0 +1,94 @@
+{% extends 'cliente_base.html' %}
+
+{% block title %}Virtuosa · Sigue tu pedido{% endblock %}
+
+{% block content %}
+<section class="vt-hero">
+    <div class="vt-eyebrow">Atelier · Alta costura</div>
+    <h1>Sigue el avance de tu pieza</h1>
+    <p>
+        Escríbele a nuestro asistente el código de tu pedido y conoce al instante
+        en qué etapa está, su avance y la fecha estimada de entrega.
+    </p>
+</section>
+
+{% csrf_token %}
+<div class="vt-chat-card" id="vt-chat">
+    <div class="vt-chat-top">
+        <span class="dot"></span>
+        <div>
+            <strong>Asistente Virtuosa</strong><br>
+            <span>En línea · responde al instante</span>
+        </div>
+    </div>
+
+    <div class="vt-messages" id="vt-messages">
+        <div class="vt-msg bot">
+            Hola, soy el asistente de Virtuosa. Escríbeme el código de tu pedido
+            (por ejemplo VIR-2026-001) y te cuento cómo va. 🤍
+        </div>
+    </div>
+
+    <form class="vt-chat-form" id="vt-chat-form">
+        <input id="vt-chat-input" type="text" autocomplete="off"
+               placeholder="Escribe tu mensaje o tu código...">
+        <button type="submit" aria-label="Enviar">➤</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const form = document.getElementById('vt-chat-form');
+    const input = document.getElementById('vt-chat-input');
+    const messages = document.getElementById('vt-messages');
+
+    function getCookie(name) {
+        const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? match.pop() : '';
+    }
+    const csrf = getCookie('csrftoken');
+
+    function addMessage(text, who, codigo) {
+        const div = document.createElement('div');
+        div.className = 'vt-msg ' + who;
+        div.textContent = text;
+        if (codigo) {
+            const a = document.createElement('a');
+            a.className = 'vt-detalle-btn';
+            a.href = "{% url 'consulta_cliente' %}?codigo=" + encodeURIComponent(codigo);
+            a.textContent = 'Ver detalle completo →';
+            div.appendChild(document.createElement('br'));
+            div.appendChild(a);
+        }
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+        return div;
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const texto = input.value.trim();
+        if (!texto) return;
+        addMessage(texto, 'user');
+        input.value = '';
+        const typing = addMessage('Escribiendo...', 'bot typing');
+
+        try {
+            const resp = await fetch("{% url 'chatbot' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+                body: JSON.stringify({ mensaje: texto }),
+            });
+            const data = await resp.json();
+            typing.remove();
+            addMessage(data.respuesta, 'bot', data.codigo);
+        } catch (err) {
+            typing.remove();
+            addMessage('Lo siento, ocurrió un error. Intenta de nuevo.', 'bot');
+        }
+    });
+})();
+</script>
+{% endblock %}

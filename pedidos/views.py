@@ -1,8 +1,12 @@
+from functools import wraps
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Count, Avg, Q
-from .models import Pedido, Costurera, EtapaPedido, Insumo
+from django.db.models.functions import TruncMonth
+from .models import Pedido, Costurera, Cliente, EtapaPedido, Insumo
+from . import historial
 from .forms import (
     PedidoForm,
     EtapaPedidoForm,
@@ -10,7 +14,21 @@ from .forms import (
     AvancePedidoForm,
     InsumoForm,
     ConsumoInsumoForm,
+    CostureraForm,
+    ClienteForm,
 )
+
+
+def admin_required(view_func):
+    """Permite el acceso solo a usuarios staff (admin); a las costureras las
+    manda directo a su panel en lugar de a las secciones de administración."""
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_staff:
+            return view_func(request, *args, **kwargs)
+        return redirect('panel_costurera')
+    return wrapper
 
 
 ETAPAS_ESTANDAR = [
@@ -37,7 +55,7 @@ def crear_etapas_estandar(pedido):
         )
 
 
-@login_required
+@admin_required
 def dashboard(request):
     total_en_proceso = Pedido.objects.filter(estado='en_proceso').count()
     total_finalizados = Pedido.objects.filter(estado='finalizado').count()
@@ -56,6 +74,19 @@ def dashboard(request):
         pedidos_asignados=Count('pedido')
     ).order_by('-pedidos_asignados')[:5]
 
+    retrasados_por_costurera = Costurera.objects.annotate(
+        total_retrasados=Count('pedido', filter=Q(pedido__estado='retrasado'))
+    ).filter(total_retrasados__gt=0).order_by('-total_retrasados')[:6]
+
+    pedidos_por_mes = (
+        Pedido.objects.annotate(mes=TruncMonth('creado_en'))
+        .values('mes')
+        .annotate(total=Count('id'))
+        .order_by('mes')
+    )
+
+    tiempo_por_etapa = historial.promedio_duracion_por_etapa()[:8]
+
     contexto = {
         'total_en_proceso': total_en_proceso,
         'total_finalizados': total_finalizados,
@@ -65,18 +96,25 @@ def dashboard(request):
         'pedidos_recientes': pedidos_recientes,
         'proximos_vencer': proximos_vencer,
         'carga_costureras': carga_costureras,
+        'retrasados_labels': [c.nombre for c in retrasados_por_costurera],
+        'retrasados_data': [c.total_retrasados for c in retrasados_por_costurera],
+        'pedidos_mes_labels': [p['mes'].strftime('%b %Y') for p in pedidos_por_mes],
+        'pedidos_mes_data': [p['total'] for p in pedidos_por_mes],
+        'etapas_labels': [e['etapa'] for e in tiempo_por_etapa],
+        'etapas_data': [e['horas_promedio'] for e in tiempo_por_etapa],
     }
 
     return render(request, 'pedidos/dashboard.html', contexto)
 
 
-@login_required
+@admin_required
 def crear_pedido(request):
     if request.method == 'POST':
         form = PedidoForm(request.POST)
         if form.is_valid():
             pedido = form.save()
             crear_etapas_estandar(pedido)
+            historial.registrar_evento(pedido, 'creacion', 'Pedido registrado', request.user)
             return redirect('detalle_pedido', pedido_id=pedido.id)
     else:
         form = PedidoForm()
@@ -84,7 +122,7 @@ def crear_pedido(request):
     return render(request, 'pedidos/pedido_form.html', {'form': form})
 
 
-@login_required
+@admin_required
 def lista_pedidos(request):
     pedidos = Pedido.objects.select_related('cliente', 'costurera').order_by('-creado_en')
     estado = request.GET.get('estado')
@@ -121,6 +159,7 @@ def detalle_pedido(request, pedido_id):
         'etapas': etapas,
         'evidencias': evidencias,
         'consumos': pedido.consumos.select_related('insumo').order_by('-fecha'),
+        'historial_eventos': historial.obtener_historial(pedido.id),
     })
 
 
@@ -134,6 +173,7 @@ def agregar_etapa(request, pedido_id):
             etapa = form.save(commit=False)
             etapa.pedido = pedido
             etapa.save()
+            historial.registrar_evento(pedido, 'etapa_agregada', etapa.nombre, request.user)
             return redirect('detalle_pedido', pedido_id=pedido.id)
     else:
         form = EtapaPedidoForm()
@@ -177,6 +217,12 @@ def registrar_consumo(request, pedido_id):
             insumo = consumo.insumo
             insumo.stock_actual = insumo.stock_actual - consumo.cantidad
             insumo.save()
+            historial.registrar_evento(
+                pedido,
+                'consumo_registrado',
+                f'{insumo.nombre}: -{consumo.cantidad} {insumo.get_unidad_display()}',
+                request.user,
+            )
             messages.success(request, f'Consumo registrado para {pedido.codigo}.')
             return redirect('detalle_pedido', pedido_id=pedido.id)
     else:
@@ -199,7 +245,7 @@ def inventario(request):
     })
 
 
-@login_required
+@admin_required
 def crear_insumo(request):
     if request.method == 'POST':
         form = InsumoForm(request.POST)
@@ -210,6 +256,126 @@ def crear_insumo(request):
         form = InsumoForm()
 
     return render(request, 'pedidos/insumo_form.html', {'form': form})
+
+
+@admin_required
+def lista_costureras(request):
+    costureras = Costurera.objects.annotate(
+        pedidos_asignados=Count('pedido')
+    ).order_by('nombre')
+
+    return render(request, 'pedidos/costurera_list.html', {
+        'costureras': costureras,
+    })
+
+
+@admin_required
+def crear_costurera(request):
+    if request.method == 'POST':
+        form = CostureraForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Costurera registrada correctamente.')
+            return redirect('lista_costureras')
+    else:
+        form = CostureraForm()
+
+    return render(request, 'pedidos/costurera_form.html', {'form': form})
+
+
+@admin_required
+def editar_costurera(request, costurera_id):
+    costurera = get_object_or_404(Costurera, id=costurera_id)
+
+    if request.method == 'POST':
+        form = CostureraForm(request.POST, instance=costurera)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Costurera actualizada correctamente.')
+            return redirect('lista_costureras')
+    else:
+        form = CostureraForm(instance=costurera)
+
+    return render(request, 'pedidos/costurera_form.html', {
+        'form': form,
+        'costurera': costurera,
+    })
+
+
+@admin_required
+def eliminar_costurera(request, costurera_id):
+    costurera = get_object_or_404(Costurera, id=costurera_id)
+
+    if request.method == 'POST':
+        nombre = costurera.nombre
+        costurera.delete()
+        messages.success(request, f'Costurera {nombre} eliminada.')
+        return redirect('lista_costureras')
+
+    return render(request, 'pedidos/costurera_confirm_delete.html', {
+        'costurera': costurera,
+    })
+
+
+@admin_required
+def lista_clientes(request):
+    clientes = Cliente.objects.annotate(
+        pedidos_realizados=Count('pedido')
+    ).order_by('nombre')
+
+    return render(request, 'pedidos/cliente_list.html', {
+        'clientes': clientes,
+    })
+
+
+@admin_required
+def crear_cliente(request):
+    if request.method == 'POST':
+        form = ClienteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente registrado correctamente.')
+            return redirect('lista_clientes')
+    else:
+        form = ClienteForm()
+
+    return render(request, 'pedidos/cliente_form.html', {'form': form})
+
+
+@admin_required
+def editar_cliente(request, cliente_id):
+    cliente = get_object_or_404(Cliente, id=cliente_id)
+
+    if request.method == 'POST':
+        form = ClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente actualizado correctamente.')
+            return redirect('lista_clientes')
+    else:
+        form = ClienteForm(instance=cliente)
+
+    return render(request, 'pedidos/cliente_form.html', {
+        'form': form,
+        'cliente': cliente,
+    })
+
+
+@admin_required
+def eliminar_cliente(request, cliente_id):
+    cliente = get_object_or_404(Cliente, id=cliente_id)
+    pedidos_asociados = Pedido.objects.filter(cliente=cliente).count()
+
+    if request.method == 'POST':
+        nombre = cliente.nombre
+        cliente.delete()
+        messages.success(request, f'Cliente {nombre} eliminado.')
+        return redirect('lista_clientes')
+
+    return render(request, 'pedidos/cliente_confirm_delete.html', {
+        'cliente': cliente,
+        'pedidos_asociados': pedidos_asociados,
+    })
 
 
 @login_required
@@ -241,6 +407,12 @@ def actualizar_avance_pedido(request, pedido_id):
         form = AvancePedidoForm(request.POST, instance=pedido)
         if form.is_valid():
             form.save()
+            historial.registrar_evento(
+                pedido,
+                'avance_actualizado',
+                f'{pedido.get_estado_display()} · {pedido.porcentaje_avance}%',
+                request.user,
+            )
             messages.success(request, f'Avance del pedido {pedido.codigo} actualizado.')
             return redirect('panel_costurera')
     else:
@@ -252,14 +424,46 @@ def actualizar_avance_pedido(request, pedido_id):
     })
 
 
+@ensure_csrf_cookie
 def consulta_cliente(request):
     pedido = None
     codigo = request.GET.get('codigo')
 
     if codigo:
-        pedido = Pedido.objects.filter(codigo__iexact=codigo).first()
+        pedido = (
+            Pedido.objects
+            .filter(codigo__iexact=codigo)
+            .select_related('cliente')
+            .prefetch_related('etapas', 'evidencias')
+            .first()
+        )
 
     return render(request, 'pedidos/consulta_cliente.html', {
         'pedido': pedido,
         'codigo': codigo,
+        'base_template': 'base.html' if request.user.is_authenticated else 'cliente_base.html',
     })
+
+
+# === Chatbot del cliente (hibrido: reglas + IA) ===
+import json as _json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from . import chatbot
+
+
+@require_POST
+def chatbot_responder(request):
+    """Recibe {'mensaje': '...'} por POST y devuelve {'respuesta','codigo'}."""
+    try:
+        body = _json.loads(request.body.decode('utf-8'))
+        mensaje = body.get('mensaje', '')
+    except (ValueError, AttributeError):
+        mensaje = ''
+    return JsonResponse(chatbot.responder_detallado(mensaje))
+
+
+@ensure_csrf_cookie
+def inicio_cliente(request):
+    """Pagina publica de bienvenida con el chat como entrada (Opcion A)."""
+    return render(request, 'cliente/inicio.html')

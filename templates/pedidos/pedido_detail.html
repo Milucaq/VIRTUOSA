@@ -9,7 +9,7 @@
 <section class="detail-hero-card">
 
     <div class="hero-illustration">
-        ♕
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
     </div>
 
     <div class="hero-main-info">
@@ -33,7 +33,7 @@
 
     <div class="hero-actions">
         <a href="{% url 'agregar_etapa' pedido.id %}" class="btn btn-primary">
-            ＋ Agregar etapa
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Agregar etapa
         </a>
 
         <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-light">
@@ -50,7 +50,7 @@
 <section class="summary-grid">
 
     <article class="summary-card">
-        <span class="summary-icon">♡</span>
+        <span class="summary-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
         <small>Cliente</small>
         <strong>{{ pedido.cliente.nombre }}</strong>
         <p>{{ pedido.cliente.celular|default:"Sin celular registrado" }}</p>
@@ -58,28 +58,28 @@
     </article>
 
     <article class="summary-card">
-        <span class="summary-icon">✂</span>
+        <span class="summary-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/></svg></span>
         <small>Costurera asignada</small>
         <strong>{{ pedido.costurera|default:"Sin asignar" }}</strong>
         <p>Responsable de confección</p>
     </article>
 
     <article class="summary-card">
-        <span class="summary-icon">▣</span>
+        <span class="summary-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>
         <small>Fecha de inicio</small>
         <strong>{{ pedido.fecha_inicio }}</strong>
         <p>Inicio del proceso</p>
     </article>
 
     <article class="summary-card">
-        <span class="summary-icon">⌛</span>
+        <span class="summary-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>
         <small>Fecha estimada</small>
         <strong>{{ pedido.fecha_entrega_estimada }}</strong>
         <p>Entrega programada</p>
     </article>
 
     <article class="summary-card">
-        <span class="summary-icon">◷</span>
+        <span class="summary-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
         <small>Estado actual</small>
         <strong>{{ pedido.get_estado_display }}</strong>
         <p>Etapa vigente</p>
@@ -123,7 +123,7 @@
             <div class="timeline-item {{ etapa.estado }}">
                 <div class="timeline-marker">
                     {% if etapa.estado == 'completado' %}
-                        ✓
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5L16 9"/></svg>
                     {% elif etapa.estado == 'en_proceso' %}
                         {{ forloop.counter }}
                     {% else %}
@@ -206,9 +206,39 @@
         </div>
 
         <a href="{% url 'actualizar_avance_pedido' pedido.id %}" class="btn btn-light full">
-            ＋ Agregar observación
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Agregar observación
         </a>
     </article>
+
+    {% if historial_eventos %}
+    <article class="panel observations-panel">
+        <div class="panel-title-row compact">
+            <div>
+                <h2>Historial de cambios</h2>
+                <p>Registro cronológico de la trazabilidad de este pedido.</p>
+            </div>
+        </div>
+
+        <div class="timeline">
+            {% for evento in historial_eventos %}
+            <div class="timeline-item">
+                <div class="timeline-marker">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                </div>
+
+                <div class="timeline-content">
+                    <div>
+                        <strong>{{ evento.detalle|default:evento.tipo }}</strong>
+                        <span class="status-badge pendiente">{{ evento.usuario|default:"Sistema" }}</span>
+                    </div>
+
+                    <small>{{ evento.fecha|date:"d/m/Y H:i" }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+    {% endif %}
 
 </section>
 

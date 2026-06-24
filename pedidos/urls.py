@@ -15,7 +15,21 @@ urlpatterns = [
     path('inventario/', views.inventario, name='inventario'),
     path('inventario/nuevo/', views.crear_insumo, name='crear_insumo'),
 
+    path('costureras/', views.lista_costureras, name='lista_costureras'),
+    path('costureras/nueva/', views.crear_costurera, name='crear_costurera'),
+    path('costureras/<int:costurera_id>/editar/', views.editar_costurera, name='editar_costurera'),
+    path('costureras/<int:costurera_id>/eliminar/', views.eliminar_costurera, name='eliminar_costurera'),
+
+    path('clientes/', views.lista_clientes, name='lista_clientes'),
+    path('clientes/nuevo/', views.crear_cliente, name='crear_cliente'),
+    path('clientes/<int:cliente_id>/editar/', views.editar_cliente, name='editar_cliente'),
+    path('clientes/<int:cliente_id>/eliminar/', views.eliminar_cliente, name='eliminar_cliente'),
+
     path('costurera/panel/', views.panel_costurera, name='panel_costurera'),
 
+    path('cliente/', views.inicio_cliente, name='inicio_cliente'),
+
     path('consulta/', views.consulta_cliente, name='consulta_cliente'),
+
+    path('chatbot/', views.chatbot_responder, name='chatbot'),
 ]

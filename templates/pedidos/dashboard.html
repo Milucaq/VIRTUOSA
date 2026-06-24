@@ -9,28 +9,28 @@
 <section class="kpi-grid">
 
     <article class="kpi-card">
-        <div class="kpi-icon pink">♙</div>
+        <div class="kpi-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
         <span>Pedidos en proceso</span>
         <strong>{{ total_en_proceso }}</strong>
         <small>Seguimiento activo</small>
     </article>
 
     <article class="kpi-card">
-        <div class="kpi-icon beige">✓</div>
+        <div class="kpi-icon beige"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5L16 9"/></svg></div>
         <span>Pedidos finalizados</span>
         <strong>{{ total_finalizados }}</strong>
         <small>Entregas completadas</small>
     </article>
 
     <article class="kpi-card">
-        <div class="kpi-icon red">◷</div>
+        <div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
         <span>Pedidos retrasados</span>
         <strong>{{ total_retrasados }}</strong>
         <small>Requieren atención</small>
     </article>
 
     <article class="kpi-card">
-        <div class="kpi-icon green">♧</div>
+        <div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <span>Clientes registrados</span>
         <strong>{{ total_clientes }}</strong>
         <small>Base comercial activa</small>
@@ -79,14 +79,14 @@
 
         {% for pedido in proximos_vencer %}
         <a class="alert-row" href="{% url 'detalle_pedido' pedido.id %}">
-            <span class="alert-icon">⌛</span>
+            <span class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
 
             <div>
                 <strong>{{ pedido.codigo }}</strong>
                 <small>Entrega estimada: {{ pedido.fecha_entrega_estimada }}</small>
             </div>
 
-            <b>›</b>
+            <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></b>
         </a>
         {% empty %}
         <div class="empty-state">
@@ -144,7 +144,7 @@
                     </td>
                     <td>
                         <a class="icon-button" href="{% url 'detalle_pedido' pedido.id %}">
-                            👁
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                         </a>
                     </td>
                 </tr>
@@ -161,4 +161,145 @@
 
 </section>
 
+<section class="panel">
+    <div class="panel-title-row compact">
+        <div>
+            <h2>Analítica de producción</h2>
+            <p>Tendencias y cuellos de botella detectados en el proceso de confección.</p>
+        </div>
+    </div>
+
+    <div class="detail-content-grid">
+
+        <article class="panel">
+            <h3>Pedidos registrados por mes</h3>
+            {% if pedidos_mes_labels %}
+            <div style="position: relative; height: 220px;">
+                <canvas id="chartPedidosMes"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">Aún no hay suficientes pedidos para mostrar una tendencia.</div>
+            {% endif %}
+        </article>
+
+        <article class="panel">
+            <h3>Pedidos retrasados por costurera</h3>
+            {% if retrasados_labels %}
+            <div style="position: relative; height: 220px;">
+                <canvas id="chartRetrasados"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">No hay pedidos retrasados registrados actualmente.</div>
+            {% endif %}
+        </article>
+
+        <article class="panel" style="grid-column: 1 / -1;">
+            <h3>Tiempo promedio por etapa (horas)</h3>
+            {% if etapas_labels %}
+            <div style="position: relative; height: 180px;">
+                <canvas id="chartEtapas"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                Aún no hay datos suficientes en el historial (MongoDB) para calcular cuellos de botella por etapa.
+            </div>
+            {% endif %}
+        </article>
+
+    </div>
+</section>
+
+{{ pedidos_mes_labels|json_script:"data-pedidos-mes-labels" }}
+{{ pedidos_mes_data|json_script:"data-pedidos-mes-data" }}
+{{ retrasados_labels|json_script:"data-retrasados-labels" }}
+{{ retrasados_data|json_script:"data-retrasados-data" }}
+{{ etapas_labels|json_script:"data-etapas-labels" }}
+{{ etapas_data|json_script:"data-etapas-data" }}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+(function () {
+    function leer(id) {
+        var el = document.getElementById(id);
+        return el ? JSON.parse(el.textContent) : [];
+    }
+
+    var pedidosMesLabels = leer('data-pedidos-mes-labels');
+    var pedidosMesData = leer('data-pedidos-mes-data');
+    var retrasadosLabels = leer('data-retrasados-labels');
+    var retrasadosData = leer('data-retrasados-data');
+    var etapasLabels = leer('data-etapas-labels');
+    var etapasData = leer('data-etapas-data');
+
+    var colorVioleta = '#491b78';
+    var colorIndigo = '#484383';
+    var colorRosa = '#b86f8b';
+
+    if (pedidosMesLabels.length) {
+        new Chart(document.getElementById('chartPedidosMes'), {
+            type: 'bar',
+            data: {
+                labels: pedidosMesLabels,
+                datasets: [{
+                    label: 'Pedidos registrados',
+                    data: pedidosMesData,
+                    backgroundColor: colorVioleta,
+                    borderRadius: 8,
+                    maxBarThickness: 60,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            },
+        });
+    }
+
+    if (retrasadosLabels.length) {
+        new Chart(document.getElementById('chartRetrasados'), {
+            type: 'bar',
+            data: {
+                labels: retrasadosLabels,
+                datasets: [{
+                    label: 'Pedidos retrasados',
+                    data: retrasadosData,
+                    backgroundColor: colorRosa,
+                    borderRadius: 8,
+                    maxBarThickness: 60,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            },
+        });
+    }
+
+    if (etapasLabels.length) {
+        new Chart(document.getElementById('chartEtapas'), {
+            type: 'bar',
+            data: {
+                labels: etapasLabels,
+                datasets: [{
+                    label: 'Horas promedio',
+                    data: etapasData,
+                    backgroundColor: colorIndigo,
+                    borderRadius: 8,
+                }],
+            },
+            options: {
+                indexAxis: 'y',
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } },
+            },
+        });
+    }
+})();
+</script>
 {% endblock %}

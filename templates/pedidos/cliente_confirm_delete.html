@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar cliente · Virtuosa Track{% endblock %}
+{% block page_title %}Eliminar cliente{% endblock %}
+{% block page_subtitle %}Esta acción no se puede deshacer{% endblock %}
+
+{% block content %}
+
+<section class="panel">
+    <p>
+        ¿Confirmas que deseas eliminar a <strong>{{ cliente.nombre }}</strong>?
+        {% if pedidos_asociados %}
+        Tiene <strong>{{ pedidos_asociados }}</strong> pedido{{ pedidos_asociados|pluralize }} asociado{{ pedidos_asociados|pluralize }},
+        que también se eliminarán.
+        {% endif %}
+    </p>
+
+    <form method="post" class="form-actions split-actions">
+        {% csrf_token %}
+
+        <a href="{% url 'lista_clientes' %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            Sí, eliminar
+        </button>
+    </form>
+</section>
+
+{% endblock %}

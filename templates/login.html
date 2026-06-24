@@ -57,7 +57,7 @@
 
                 <label for="id_username">Usuario</label>
                 <div class="input-with-icon">
-                    <span>♡</span>
+                    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
                     <input 
                         id="id_username" 
                         type="text" 
@@ -69,7 +69,7 @@
 
                 <label for="id_password">Contraseña</label>
                 <div class="input-with-icon">
-                    <span>🔒</span>
+                    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
                     <input 
                         id="id_password" 
                         type="password" 
@@ -83,6 +83,13 @@
                     Iniciar sesión
                 </button>
             </form>
+
+            <div style="text-align:center;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);">
+                <p style="margin:0 0 6px;color:var(--muted);font-size:13px;">¿Eres cliente?</p>
+                <a href="{% url 'inicio_cliente' %}" style="color:var(--wine);font-weight:600;font-size:14px;">
+                    Sigue el avance de tu pedido →
+                </a>
+            </div>
         </div>
     </div>
 

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar costurera · Virtuosa Track{% endblock %}
+{% block page_title %}Eliminar costurera{% endblock %}
+{% block page_subtitle %}Esta acción no se puede deshacer{% endblock %}
+
+{% block content %}
+
+<section class="panel">
+    <p>
+        ¿Confirmas que deseas eliminar a <strong>{{ costurera.nombre }}</strong>?
+        Sus pedidos asignados quedarán sin costurera asignada.
+    </p>
+
+    <form method="post" class="form-actions split-actions">
+        {% csrf_token %}
+
+        <a href="{% url 'lista_costureras' %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            Sí, eliminar
+        </button>
+    </form>
+</section>
+
+{% endblock %}

@@ -1,29 +1,29 @@
 :root {
-    --wine: #4b1f32;
-    --wine-dark: #2b101d;
-    --wine-soft: #71314c;
-    --rose: #b86f8b;
-    --rose-soft: #f5dce7;
-    --rose-light: #fff4f8;
-    --cream: #fbf6ef;
-    --cream-2: #f7eadf;
-    --beige: #e8d1bd;
-    --gold: #c79b5f;
-    --gold-soft: #f3e0bd;
+    --wine: #491b78;          /* PRINCIPAL  violeta de marca */
+    --wine-dark: #33125a;     /* violeta oscuro */
+    --wine-soft: #5e2a8f;     /* violeta medio */
+    --rose: #484383;          /* SECUNDARIO  indigo de marca */
+    --rose-soft: #ece8f6;     /* tinte violeta suave */
+    --rose-light: #f6f4fb;    /* casi blanco */
+    --cream: #ffffff;         /* fondo base blanco */
+    --cream-2: #f6f4fb;
+    --beige: #d9d3ea;
+    --gold: #484383;          /* acento -> indigo (paleta sin dorado) */
+    --gold-soft: #ece8f6;
     --white: #ffffff;
-    --text: #2f2630;
-    --muted: #8b7c84;
-    --border: #eadde2;
-    --success: #4c9a69;
-    --success-bg: #e2f3e8;
-    --danger: #bf5959;
-    --danger-bg: #f8dddd;
-    --warning: #c88a32;
+    --text: #23282d;          /* grafito de marca */
+    --muted: #7b7490;
+    --border: #e4e0ef;
+    --success: #2e7d4f;
+    --success-bg: #dff3e6;
+    --danger: #b3261e;
+    --danger-bg: #fbe3e3;
+    --warning: #9a6a00;
     --warning-bg: #fff0d8;
-    --info: #7a6cc8;
-    --info-bg: #e9e6ff;
-    --shadow: 0 20px 55px rgba(75, 31, 50, 0.10);
-    --shadow-soft: 0 12px 30px rgba(75, 31, 50, 0.07);
+    --info: #484383;
+    --info-bg: #ece8f6;
+    --shadow: 0 20px 55px rgba(73, 27, 120, 0.12);
+    --shadow-soft: 0 12px 30px rgba(73, 27, 120, 0.08);
     --radius-xl: 32px;
     --radius-lg: 24px;
     --radius-md: 18px;
@@ -43,8 +43,8 @@ body {
     font-family: "Inter", sans-serif;
     color: var(--text);
     background:
-        radial-gradient(circle at top left, rgba(245, 220, 231, 0.75), transparent 35%),
-        radial-gradient(circle at bottom right, rgba(243, 224, 189, 0.65), transparent 32%),
+        radial-gradient(circle at top left, rgba(73, 27, 120, 0.06), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(72, 67, 131, 0.05), transparent 32%),
         var(--cream);
 }
 
@@ -84,7 +84,7 @@ img {
     position: relative;
     overflow: hidden;
     background:
-        linear-gradient(135deg, rgba(43, 16, 29, 0.88), rgba(75, 31, 50, 0.62)),
+        linear-gradient(135deg, rgba(43, 16, 29, 0.88), rgba(73, 27, 120, 0.62)),
         url("https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=1400&q=80");
     background-size: cover;
     background-position: center;
@@ -106,7 +106,7 @@ img {
     right: -80px;
     bottom: -80px;
     border-radius: 50%;
-    background: rgba(199, 155, 95, 0.22);
+    background: rgba(72, 67, 131, 0.10);
     filter: blur(3px);
 }
 
@@ -127,7 +127,7 @@ img {
     border-radius: 18px;
     color: white;
     background: linear-gradient(135deg, var(--rose), var(--gold));
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 31px;
     font-weight: 700;
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
@@ -143,7 +143,7 @@ img {
 
 .login-art h1 {
     margin: 0;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 86px;
     letter-spacing: 5px;
     line-height: 0.9;
@@ -174,7 +174,7 @@ img {
 .login-art h2 {
     max-width: 520px;
     margin: 0;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 42px;
     font-weight: 600;
     line-height: 1.15;
@@ -210,7 +210,7 @@ img {
 .login-logo h2 {
     margin: 0;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 32px;
     letter-spacing: 2px;
 }
@@ -276,8 +276,8 @@ img {
     padding: 28px 22px;
     color: white;
     background:
-        linear-gradient(180deg, rgba(43, 16, 29, 0.98), rgba(75, 31, 50, 0.97)),
-        radial-gradient(circle at top, rgba(199, 155, 95, 0.22), transparent 30%);
+        linear-gradient(180deg, rgba(43, 16, 29, 0.98), rgba(73, 27, 120, 0.97)),
+        radial-gradient(circle at top, rgba(72, 67, 131, 0.10), transparent 30%);
     overflow: hidden;
 }
 
@@ -302,7 +302,7 @@ img {
 
 .brand-text strong {
     display: block;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 30px;
     letter-spacing: 2px;
     line-height: 1;
@@ -430,7 +430,7 @@ img {
 .topbar h1 {
     margin: 0;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 46px;
     line-height: 1;
 }
@@ -556,7 +556,7 @@ img {
 
 .panel h2 {
     margin: 0;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 29px;
 }
 
@@ -602,7 +602,7 @@ img {
 .btn-primary {
     color: white;
     background: linear-gradient(135deg, var(--wine), var(--rose));
-    box-shadow: 0 14px 26px rgba(75, 31, 50, 0.18);
+    box-shadow: 0 14px 26px rgba(73, 27, 120, 0.18);
 }
 
 .btn-light {
@@ -692,7 +692,7 @@ img {
     right: -45px;
     top: -48px;
     border-radius: 50%;
-    background: rgba(245, 220, 231, 0.65);
+    background: rgba(73, 27, 120, 0.65);
 }
 
 .kpi-icon {
@@ -735,7 +735,7 @@ img {
     display: block;
     margin: 8px 0 5px;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 42px;
     line-height: 1;
 }
@@ -1084,7 +1084,7 @@ textarea:focus {
     position: absolute;
     right: 28px;
     top: 18px;
-    color: rgba(199, 155, 95, 0.32);
+    color: rgba(72, 67, 131, 0.32);
     font-size: 80px;
 }
 
@@ -1107,7 +1107,7 @@ textarea:focus {
 
 .section-heading h2 {
     margin: 0;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 30px;
 }
 
@@ -1194,7 +1194,7 @@ textarea:focus {
     padding: 26px;
     margin-bottom: 24px;
     background:
-        linear-gradient(135deg, rgba(75, 31, 50, 0.92), rgba(184, 111, 139, 0.72)),
+        linear-gradient(135deg, rgba(73, 27, 120, 0.92), rgba(184, 111, 139, 0.72)),
         url("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1400&q=80");
     background-size: cover;
     background-position: center;
@@ -1226,7 +1226,7 @@ textarea:focus {
 
 .hero-main-info h2 {
     margin: 0;
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 42px;
     line-height: 1;
 }
@@ -1592,7 +1592,7 @@ textarea:focus {
 .mini-order-content h3 {
     margin: 0;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 34px;
 }
 
@@ -1702,13 +1702,13 @@ textarea:focus {
     margin-bottom: 24px;
     background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.90), rgba(255, 244, 248, 0.95)),
-        radial-gradient(circle at right, rgba(199, 155, 95, 0.18), transparent 36%);
+        radial-gradient(circle at right, rgba(72, 67, 131, 0.10), transparent 36%);
 }
 
 .seamstress-welcome h2 {
     margin: 0;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 42px;
 }
 
@@ -1776,8 +1776,8 @@ textarea:focus {
 .client-page-body {
     min-height: 100vh;
     background:
-        radial-gradient(circle at top left, rgba(245, 220, 231, 0.8), transparent 38%),
-        radial-gradient(circle at bottom right, rgba(243, 224, 189, 0.65), transparent 36%),
+        radial-gradient(circle at top left, rgba(73, 27, 120, 0.06), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(72, 67, 131, 0.05), transparent 36%),
         var(--cream);
 }
 
@@ -1799,7 +1799,7 @@ textarea:focus {
 .client-brand strong {
     display: block;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 24px;
     letter-spacing: 2px;
 }
@@ -1846,7 +1846,7 @@ textarea:focus {
     max-width: 760px;
     margin: 0 auto;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 66px;
     line-height: 0.95;
 }
@@ -1902,7 +1902,7 @@ textarea:focus {
 .client-order-summary h2 {
     margin: 0 0 20px;
     color: var(--wine);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 42px;
 }
 
@@ -1946,14 +1946,14 @@ textarea:focus {
 .client-progress-number {
     margin-bottom: 12px;
     color: var(--rose);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 70px;
     font-weight: 700;
 }
 
 .quote-mark {
     color: var(--gold);
-    font-family: "Cormorant Garamond", serif;
+    font-family: "Inter", sans-serif;
     font-size: 80px;
     line-height: 0.7;
 }
@@ -2236,3 +2236,111 @@ textarea:focus {
         width: 100%;
     }
 }
+/* ============================================================
+   AJUSTES UX/UI · Diseño compacto y limpio (Virtuosa)
+   ============================================================ */
+:root {
+    --radius-xl: 18px;
+    --radius-lg: 14px;
+    --radius-md: 12px;
+    --radius-sm: 10px;
+    --shadow: 0 8px 24px rgba(73, 27, 120, 0.07);
+    --shadow-soft: 0 6px 16px rgba(73, 27, 120, 0.05);
+}
+
+/* Tarjetas y paneles más livianos */
+.panel, .kpi-card, .form-section-card, .detail-hero-card,
+.summary-card, .seamstress-welcome, .client-result-card, .client-search-card {
+    background: #fff;
+    box-shadow: var(--shadow);
+    backdrop-filter: none;
+}
+
+/* La tarjeta de detalle perdió su fondo oscuro: el texto y el ícono
+   se reajustan a la paleta clara para seguir siendo legibles */
+.detail-hero-card,
+.detail-hero-card .hero-main-info h2,
+.detail-hero-card .hero-main-info p,
+.detail-hero-card .hero-status small,
+.detail-hero-card .hero-status strong {
+    color: var(--muted) !important;
+}
+.hero-illustration {
+    background: var(--rose-soft) !important;
+    border-color: var(--beige) !important;
+    color: var(--wine) !important;
+}
+
+/* Encabezado de página más sobrio */
+.topbar h1 { font-size: 26px; }
+.topbar p { font-size: 13px; margin-top: 4px; }
+
+/* KPI: sin medias lunas, más compacto */
+.kpi-card { padding: 18px; }
+.kpi-card::after { display: none !important; }
+.kpi-card span { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+.kpi-card strong { font-size: 30px; margin: 6px 0 2px; }
+.kpi-card small { font-size: 12px; }
+
+/* Iconos KPI: estilo tintado, legible (no gradientes pesados) */
+.kpi-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    margin-bottom: 14px;
+}
+.kpi-icon svg { width: 20px; height: 20px; }
+.kpi-icon.pink  { background: #ece8f6 !important; color: #491b78 !important; }
+.kpi-icon.beige { background: #dff3e6 !important; color: #2e7d4f !important; }
+.kpi-icon.red   { background: #fbe3e3 !important; color: #b3261e !important; }
+.kpi-icon.green { background: #e7eafb !important; color: #484383 !important; }
+
+/* Paneles */
+.panel { padding: 20px; margin-bottom: 16px; }
+.panel h2 { font-size: 18px; }
+.panel p { font-size: 13px; }
+.kpi-grid { gap: 16px; }
+.dashboard-grid { gap: 16px; }
+.progress-panel { min-height: auto; }
+.circle-progress { width: 88px; height: 88px; }
+.circle-progress span { font-size: 18px; }
+
+/* Navegación lateral más compacta + iconos SVG */
+.brand-text strong { font-size: 22px; }
+.sidebar-nav { gap: 6px; }
+.nav-item { padding: 10px 13px; font-size: 13.5px; border-radius: 12px; }
+.nav-icon { width: 30px; height: 30px; border-radius: 9px; }
+.nav-icon svg { width: 17px; height: 17px; }
+
+/* Iconos en filas de alerta, acciones de tabla */
+.alert-icon, .icon-button { display: grid; place-items: center; }
+.alert-icon svg { width: 18px; height: 18px; }
+.icon-button svg { width: 17px; height: 17px; }
+.alert-row b svg { width: 16px; height: 16px; }
+
+/* Mini-stats del avance: más discretas */
+.mini-stats small { font-size: 11px; }
+.mini-stats strong { font-size: 14px; }
+
+/* Consulta cliente (vista interna): búsqueda simple sin grid de filtros */
+.search-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.search-row .wide-search {
+    flex: 1;
+}
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--wine);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* Alineación de iconos SVG en botones y contenedores */
+.btn svg { vertical-align: -3px; margin-right: 6px; }
+.summary-icon, .form-sec-ic, .placeholder-dress { display: grid; place-items: center; }
+.search-box span, .inventory-name span, .input-with-icon span { display: inline-grid; place-items: center; }
+.alert-row b { display: grid; place-items: center; }

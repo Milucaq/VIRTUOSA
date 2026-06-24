@@ -8,32 +8,34 @@
 
 <section class="kpi-grid">
     <article class="kpi-card">
-        <div class="kpi-icon beige">◇</div>
+        <div class="kpi-icon beige"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
         <span>Insumos registrados</span>
         <strong>{{ insumos|length }}</strong>
         <small>Materiales disponibles</small>
     </article>
 
     <article class="kpi-card">
-        <div class="kpi-icon red">!</div>
+        <div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
         <span>Alertas de stock</span>
         <strong>{{ total_stock_bajo }}</strong>
         <small>Requieren reposicion</small>
     </article>
 
     <article class="kpi-card">
-        <div class="kpi-icon green">✓</div>
+        <div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5L16 9"/></svg></div>
         <span>Control operativo</span>
         <strong>OK</strong>
         <small>Conectado a pedidos</small>
     </article>
 
+    {% if user.is_staff %}
     <article class="kpi-card">
-        <div class="kpi-icon pink">＋</div>
+        <div class="kpi-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
         <span>Nuevo registro</span>
         <strong>+</strong>
         <small><a href="{% url 'crear_insumo' %}">Agregar insumo</a></small>
     </article>
+    {% endif %}
 </section>
 
 <section class="panel">
@@ -43,9 +45,11 @@
             <p>Consulta disponibilidad, unidad de medida y alertas de stock bajo.</p>
         </div>
 
+        {% if user.is_staff %}
         <a href="{% url 'crear_insumo' %}" class="btn btn-primary">
-            ＋ Nuevo insumo
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Nuevo insumo
         </a>
+        {% endif %}
     </div>
 
     <div class="table-card">
@@ -66,7 +70,7 @@
                 <tr>
                     <td>
                         <div class="inventory-name">
-                            <span>◇</span>
+                            <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>
                             <strong>{{ insumo.nombre }}</strong>
                         </div>
                     </td>

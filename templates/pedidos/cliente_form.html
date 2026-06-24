@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if cliente %}Editar cliente{% else %}Nuevo cliente{% endif %} · Virtuosa Track{% endblock %}
+{% block page_title %}{% if cliente %}Editar cliente{% else %}Registrar cliente{% endif %}{% endblock %}
+{% block page_subtitle %}Datos de contacto del cliente{% endblock %}
+
+{% block content %}
+
+<form method="post" class="designer-form">
+    {% csrf_token %}
+
+    <section class="form-section-card floral-card">
+        <div class="section-heading">
+            <span class="form-sec-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <h2>Información del cliente</h2>
+        </div>
+
+        <div class="form-grid two">
+
+            <div class="field-box">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+                {{ form.nombre.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.celular.label_tag }}
+                {{ form.celular }}
+                {{ form.celular.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.correo.label_tag }}
+                {{ form.correo }}
+                {{ form.correo.errors }}
+            </div>
+
+            <div class="field-box">
+                {{ form.direccion.label_tag }}
+                {{ form.direccion }}
+                {{ form.direccion.errors }}
+            </div>
+
+            <div class="field-box full-field">
+                {{ form.observaciones.label_tag }}
+                {{ form.observaciones }}
+                {{ form.observaciones.errors }}
+            </div>
+
+        </div>
+    </section>
+
+    <div class="form-actions split-actions">
+        <a href="{% url 'lista_clientes' %}" class="btn btn-light">
+            Cancelar
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            {% if cliente %}Guardar cambios{% else %}Registrar cliente{% endif %}
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

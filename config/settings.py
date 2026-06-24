@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
+from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ox2^-v07rc90vja%5@fu6qavst95@2s0#yl^hdyrqq=*@rzag4'
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-ox2^-v07rc90vja%5@fu6qavst95@2s0#yl^hdyrqq=*@rzag4',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
+
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 
 
 # Application definition
@@ -37,12 +44,15 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'pedidos',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,10 +85,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 
 
@@ -120,6 +130,27 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# --- Almacenamiento de media (evidencias fotográficas) ---
+# Si existe CLOUDINARY_URL, las imágenes se suben a Cloudinary y sobreviven
+# a los redeploys. Si no existe (entorno local), se guardan en disco como antes.
+CLOUDINARY_URL = config('CLOUDINARY_URL', default='')
+if CLOUDINARY_URL:
+    os.environ['CLOUDINARY_URL'] = CLOUDINARY_URL
+
+STORAGES = {
+    'default': {
+        'BACKEND': (
+            'cloudinary_storage.storage.MediaCloudinaryStorage'
+            if CLOUDINARY_URL
+            else 'django.core.files.storage.FileSystemStorage'
+        ),
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -127,3 +158,45 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# --- Seguridad en producción (se activa automáticamente cuando DEBUG=False) ---
+if not DEBUG:
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=60 * 60 * 24 * 7, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# --- Historial de cambios (MongoDB) ---
+# Si MONGO_URI esta vacio, el historial simplemente no se registra
+# (no rompe la app: crear/editar pedidos sigue funcionando igual).
+MONGO_URI = config('MONGO_URI', default='')
+MONGO_DB_NAME = config('MONGO_DB_NAME', default='virtuosa_historial')
+
+# --- Notificaciones automáticas por email ---
+# Por defecto usa el backend de consola (imprime el correo en la terminal,
+# no envia nada real) para que el entorno local funcione sin configuración.
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend',
+)
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER or 'no-reply@virtuosa.local')
+
+# Correo fijo que recibe las notificaciones (pedido retrasado/finalizado).
+# Si esta vacío, simplemente no se envía nada (no rompe la app).
+NOTIFICATION_EMAIL = config('NOTIFICATION_EMAIL', default='')
+
+# --- Chatbot (Hugging Face) ---
+# Si HF_TOKEN esta vacio, el chatbot funciona solo con reglas (modo de respaldo).
+# Para activar la IA: crea un token gratuito en https://huggingface.co/settings/tokens
+# y exportalo como variable de entorno antes de levantar el servidor:
+#   Windows PowerShell:  $env:HF_TOKEN = "hf_xxxxxxxx"
+#   Mac/Linux:           export HF_TOKEN="hf_xxxxxxxx"
+HF_TOKEN = os.environ.get('HF_TOKEN', '')
+HF_MODEL = os.environ.get('HF_MODEL', 'Qwen/Qwen2.5-7B-Instruct')

@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Virtuosa · Seguimiento de pedidos{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/cliente.css' %}">
+</head>
+
+<body class="vt-public">
+
+    <header class="vt-header">
+        <a class="vt-wordmark" href="{% url 'inicio_cliente' %}">
+            VIRTUOSA
+            <small>ATELIER · ALTA COSTURA</small>
+        </a>
+
+        <nav class="vt-nav">
+            <a href="{% url 'inicio_cliente' %}">Inicio</a>
+            <a href="{% url 'consulta_cliente' %}">Consultar pedido</a>
+            <a class="vt-wa" href="https://wa.me/51993012530" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="vt-login" href="{% url 'login' %}?next=/">Acceso atelier</a>
+        </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="vt-footer">
+        <div>
+            <h4>Virtuosa</h4>
+            <p>Diseño y confección de alta costura para mujer. Comprometidos con la moda sostenible.</p>
+        </div>
+        <div>
+            <h4>Showroom</h4>
+            <p>Av. San Luis 1992 · San Borja<br>Lun a Sáb · 10 a.m. – 8 p.m.</p>
+            <p>Calle Las Cascadas 333 · La Molina<br>Lun a Vie · 11 a.m. – 6 p.m.</p>
+        </div>
+        <div>
+            <h4>Contacto</h4>
+            <p><a href="mailto:info@virtuosa.pe">info@virtuosa.pe</a></p>
+            <p><a href="https://wa.me/51993012530" target="_blank" rel="noopener">WhatsApp +51 99 301 2530</a></p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

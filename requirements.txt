@@ -1,0 +1,10 @@
+Django==6.0.5
+Pillow
+python-decouple
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary
+cloudinary
+django-cloudinary-storage
+pymongo

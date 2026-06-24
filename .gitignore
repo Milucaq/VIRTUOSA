@@ -28,11 +28,12 @@ share/python-wheels/
 MANIFEST
 
 # Django
-.db.sqlite3
-.db.sqlite3-journal
+db.sqlite3
+db.sqlite3-journal
 # media and static are tracked in this repo
 .env
 .venv
+staticfiles/
 
 # IDE
 .vscode/
