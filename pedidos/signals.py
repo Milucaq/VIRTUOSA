@@ -10,7 +10,7 @@ from .models import Pedido
 
 logger = logging.getLogger(__name__)
 
-ESTADOS_NOTIFICABLES = {'retrasado', 'finalizado'}
+ESTADOS_NOTIFICABLES = {'retrasado', 'finalizado', 'entregado'}
 ESTADOS_TODO_COMPLETADO = {'finalizado', 'entregado'}
 
 
