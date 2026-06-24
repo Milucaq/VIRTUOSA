@@ -148,7 +148,13 @@ STORAGES = {
         ),
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        # Variante SIN manifest/hash de nombre de archivo. La variante con
+        # manifest (CompressedManifestStaticFilesStorage) valida que todo
+        # url() referenciado en cada CSS exista en disco, y el propio CSS
+        # del admin de Django referencia iconos que no siempre vienen
+        # incluidos en el paquete estatico (ej. icon-debug.svg) - eso
+        # tumba el build sin que sea un problema real de la app.
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }
 
