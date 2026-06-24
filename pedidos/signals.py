@@ -4,12 +4,51 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 from .models import Pedido
 
 logger = logging.getLogger(__name__)
 
 ESTADOS_NOTIFICABLES = {'retrasado', 'finalizado'}
+ESTADOS_TODO_COMPLETADO = {'finalizado', 'entregado'}
+
+
+@receiver(post_save, sender=Pedido)
+def _sincronizar_etapas_con_avance(sender, instance, created, **kwargs):
+    """Marca las etapas del pedido como completado/en_proceso/pendiente en
+    proporcion al porcentaje_avance general, para que la linea de tiempo del
+    detalle de pedido no se quede congelada en su estado inicial."""
+    if created:
+        return
+
+    etapas = list(instance.etapas.order_by('id'))
+    total = len(etapas)
+    if not total:
+        return
+
+    if instance.estado in ESTADOS_TODO_COMPLETADO:
+        completadas = total
+    else:
+        completadas = round((instance.porcentaje_avance / 100) * total)
+        completadas = max(0, min(completadas, total))
+
+    hoy = timezone.now().date()
+    for index, etapa in enumerate(etapas):
+        if index < completadas:
+            nuevo_estado = 'completado'
+        elif index == completadas and instance.porcentaje_avance > 0:
+            nuevo_estado = 'en_proceso'
+        else:
+            nuevo_estado = 'pendiente'
+
+        if etapa.estado == nuevo_estado:
+            continue
+
+        etapa.estado = nuevo_estado
+        if nuevo_estado == 'completado' and not etapa.fecha:
+            etapa.fecha = hoy
+        etapa.save(update_fields=['estado', 'fecha'])
 
 
 @receiver(pre_save, sender=Pedido)
