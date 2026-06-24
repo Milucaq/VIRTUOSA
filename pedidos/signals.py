@@ -1,7 +1,7 @@
 import logging
 
+import requests
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -9,6 +9,37 @@ from django.utils import timezone
 from .models import Pedido
 
 logger = logging.getLogger(__name__)
+
+BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
+
+
+def _enviar_correo_brevo(asunto, mensaje, destinatario):
+    """Envia el correo via la API HTTPS de Brevo en vez de SMTP: Render
+    bloquea los puertos salientes 587/465, lo que dejaba la conexion SMTP
+    colgada hasta tumbar el worker de gunicorn por timeout."""
+    if not settings.BREVO_API_KEY:
+        return
+
+    try:
+        respuesta = requests.post(
+            BREVO_API_URL,
+            headers={
+                'api-key': settings.BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            json={
+                'sender': {'email': settings.DEFAULT_FROM_EMAIL},
+                'to': [{'email': destinatario}],
+                'subject': asunto,
+                'textContent': mensaje,
+            },
+            timeout=10,
+        )
+        respuesta.raise_for_status()
+    except Exception:
+        logger.warning('No se pudo enviar el correo de notificación vía Brevo.', exc_info=True)
+
 
 ESTADOS_NOTIFICABLES = {'retrasado', 'finalizado', 'entregado'}
 ESTADOS_TODO_COMPLETADO = {'finalizado', 'entregado'}
@@ -84,13 +115,4 @@ def _notificar_cambio_estado(sender, instance, created, **kwargs):
         f'Entrega estimada: {instance.fecha_entrega_estimada}\n'
     )
 
-    try:
-        send_mail(
-            asunto,
-            mensaje,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.NOTIFICATION_EMAIL],
-            fail_silently=False,
-        )
-    except Exception:
-        logger.warning('No se pudo enviar el correo de notificación.', exc_info=True)
+    _enviar_correo_brevo(asunto, mensaje, settings.NOTIFICATION_EMAIL)

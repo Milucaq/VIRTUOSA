@@ -204,6 +204,11 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER or 'no
 # colgada dentro del request (lo que tumbaba el worker de gunicorn por timeout).
 EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=10, cast=int)
 
+# Render bloquea los puertos salientes de SMTP (587/465), asi que las
+# notificaciones se envian via la API HTTPS de Brevo en vez de smtplib.
+# Si esta vacio, simplemente no se envia nada (no rompe la app).
+BREVO_API_KEY = config('BREVO_API_KEY', default='')
+
 # Correo fijo que recibe las notificaciones (pedido retrasado/finalizado).
 # Si esta vacío, simplemente no se envía nada (no rompe la app).
 NOTIFICATION_EMAIL = config('NOTIFICATION_EMAIL', default='')
