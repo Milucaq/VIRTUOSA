@@ -40,3 +40,5 @@ services:
         sync: false
       - key: NOTIFICATION_EMAIL
         sync: false
+      - key: BREVO_API_KEY
+        sync: false
