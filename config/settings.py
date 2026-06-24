@@ -152,6 +152,11 @@ STORAGES = {
     },
 }
 
+# django-cloudinary-storage trae su propio comando "collectstatic" que todavia
+# lee el setting legacy STATICFILES_STORAGE (pre Django 4.2) en vez de STORAGES;
+# sin esto, truena con AttributeError al hacer collectstatic.
+STATICFILES_STORAGE = STORAGES['staticfiles']['BACKEND']
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
