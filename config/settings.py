@@ -200,6 +200,9 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER or 'no-reply@virtuosa.local')
+# Si el servidor SMTP no responde rapido, esto evita que la conexion se quede
+# colgada dentro del request (lo que tumbaba el worker de gunicorn por timeout).
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=10, cast=int)
 
 # Correo fijo que recibe las notificaciones (pedido retrasado/finalizado).
 # Si esta vacío, simplemente no se envía nada (no rompe la app).
