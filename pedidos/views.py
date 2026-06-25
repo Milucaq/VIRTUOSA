@@ -117,6 +117,8 @@ def crear_pedido(request):
         if form.is_valid():
             pedido = form.save()
             crear_etapas_estandar(pedido)
+            pedido.recalcular_progreso()
+            pedido.save()
             historial.registrar_evento(pedido, 'creacion', 'Pedido registrado', request.user)
             return redirect('detalle_pedido', pedido_id=pedido.id)
     else:

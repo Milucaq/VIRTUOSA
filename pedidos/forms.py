@@ -24,8 +24,6 @@ class PedidoForm(forms.ModelForm):
             'fecha_inicio',
             'fecha_entrega_estimada',
             'costurera',
-            'estado',
-            'porcentaje_avance',
             'observaciones',
         ]
         widgets = {

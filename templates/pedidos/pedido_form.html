@@ -50,7 +50,7 @@
             <h2>Fechas y asignación</h2>
         </div>
 
-        <div class="form-grid four">
+        <div class="form-grid three">
             <div class="field-box">
                 {{ form.fecha_inicio.label_tag }}
                 {{ form.fecha_inicio }}
@@ -68,26 +68,12 @@
                 {{ form.costurera }}
                 {{ form.costurera.errors }}
             </div>
-
-            <div class="field-box">
-                {{ form.estado.label_tag }}
-                {{ form.estado }}
-                {{ form.estado.errors }}
-            </div>
         </div>
 
-        <div class="range-field">
-            {{ form.porcentaje_avance.label_tag }}
-            {{ form.porcentaje_avance }}
-
-            <div class="range-preview">
-                <span>0%</span>
-                <i></i>
-                <span>100%</span>
-            </div>
-
-            {{ form.porcentaje_avance.errors }}
-        </div>
+        <p class="hint-text">
+            El estado y el % de avance se calculan solos a partir de las
+            etapas del proceso, una vez creado el pedido.
+        </p>
     </section>
 
     <section class="form-section-card">
