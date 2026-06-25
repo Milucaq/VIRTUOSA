@@ -414,7 +414,7 @@ def actualizar_progreso_pedido(request, pedido_id):
             if etapa_actual:
                 etapa_actual.estado = etapa_form.cleaned_data['estado']
                 if etapa_actual.estado == 'completado' and not etapa_actual.fecha:
-                    etapa_actual.fecha = timezone.now().date()
+                    etapa_actual.fecha = timezone.localdate()
                 etapa_actual.save(update_fields=['estado', 'fecha'])
 
             pedido.recalcular_progreso()

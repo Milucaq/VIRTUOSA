@@ -102,7 +102,7 @@ class Pedido(models.Model):
 
         if total and completadas == total:
             self.estado = 'finalizado'
-        elif self.fecha_entrega_estimada and self.fecha_entrega_estimada < timezone.now().date():
+        elif self.fecha_entrega_estimada and self.fecha_entrega_estimada < timezone.localdate():
             self.estado = 'retrasado'
         elif completadas > 0 or any(etapa.estado == 'en_proceso' for etapa in etapas):
             self.estado = 'en_proceso'

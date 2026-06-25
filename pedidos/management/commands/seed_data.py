@@ -70,7 +70,7 @@ class Command(BaseCommand):
     help = 'Carga datos de ejemplo (clientes, costureras, insumos y pedidos) para demostracion.'
 
     def handle(self, *args, **options):
-        hoy = timezone.now().date()
+        hoy = timezone.localdate()
 
         clientes = {}
         for data in CLIENTES:
