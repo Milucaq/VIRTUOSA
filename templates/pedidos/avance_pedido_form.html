@@ -65,22 +65,47 @@
 
 <form method="post" enctype="multipart/form-data" class="panel designer-form advance-form-card">
     {% csrf_token %}
-    {{ etapas_formset.management_form }}
 
     <div class="panel-title-row">
         <div>
             <h2>Etapas del proceso</h2>
-            <p>Marca cada etapa según su avance real.</p>
+            {% if etapa_actual %}
+            <p>Las etapas ya completadas quedan bloqueadas — solo se avanza la etapa vigente, no se retrocede.</p>
+            {% else %}
+            <p>Todas las etapas están completadas para este pedido.</p>
+            {% endif %}
         </div>
     </div>
 
-    <div class="form-grid two">
-        {% for etapa, etapa_form in etapas_con_form %}
-        <div class="field-box">
-            <label>{{ etapa.nombre }}</label>
-            {{ etapa_form.id }}
-            {{ etapa_form.estado }}
-            {{ etapa_form.estado.errors }}
+    <div class="timeline">
+        {% for etapa in etapas %}
+        <div class="timeline-item {{ etapa.estado }}">
+            <div class="timeline-marker">
+                {% if etapa.estado == 'completado' %}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5L16 9"/></svg>
+                {% else %}
+                    {{ forloop.counter }}
+                {% endif %}
+            </div>
+
+            <div class="timeline-content">
+                <div>
+                    <strong>{{ etapa.nombre }}</strong>
+                    <span class="status-badge {{ etapa.estado }}">{{ etapa.get_estado_display }}</span>
+                </div>
+
+                {% if etapa == etapa_actual %}
+                <div class="field-box">
+                    {{ etapa_form.estado.label_tag }}
+                    {{ etapa_form.estado }}
+                    {{ etapa_form.estado.errors }}
+                </div>
+                {% elif etapa.estado == 'completado' %}
+                <small>Completada{% if etapa.fecha %} el {{ etapa.fecha }}{% endif %} — ya no se puede editar.</small>
+                {% else %}
+                <small>Se habilita cuando termines la etapa anterior.</small>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>

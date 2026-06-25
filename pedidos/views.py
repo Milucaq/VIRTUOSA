@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
-from django.forms import modelformset_factory
+from django.utils import timezone
 from django.db.models import Count, Avg, Q
 from django.db.models.functions import TruncMonth
 from .models import Pedido, Costurera, Cliente, EtapaPedido, Insumo
@@ -12,7 +12,7 @@ from . import historial
 from .forms import (
     PedidoForm,
     EtapaPedidoForm,
-    EtapaEstadoForm,
+    EtapaActualForm,
     EvidenciaRapidaForm,
     ObservacionesPedidoForm,
     InsumoForm,
@@ -392,25 +392,30 @@ def _es_responsable_del_pedido(user, pedido):
     return bool(pedido.costurera and pedido.costurera.usuario_id == user.id)
 
 
-EtapaEstadoFormSet = modelformset_factory(EtapaPedido, form=EtapaEstadoForm, extra=0)
-
-
 @login_required
 def actualizar_progreso_pedido(request, pedido_id):
-    """Pantalla unica para mover el progreso de un pedido: editar el estado
-    de cada etapa, subir evidencia opcional y anotar observaciones. El %
-    de avance y el estado general del pedido ya no se escriben a mano aqui,
+    """Pantalla unica para mover el progreso de un pedido: avanzar la etapa
+    actual, subir evidencia opcional y anotar observaciones. Las etapas ya
+    completadas quedan bloqueadas (no se puede retroceder) y solo la etapa
+    vigente es editable. El % de avance y el estado general ya no se escriben
+    a mano aqui,
     se derivan de las etapas via Pedido.recalcular_progreso()."""
     pedido = get_object_or_404(Pedido, id=pedido_id)
-    etapas_qs = pedido.etapas.order_by('id')
+    etapas = list(pedido.etapas.order_by('id'))
+    etapa_actual = next((e for e in etapas if e.estado != 'completado'), None)
 
     if request.method == 'POST':
-        etapas_formset = EtapaEstadoFormSet(request.POST, prefix='etapas', queryset=etapas_qs)
+        etapa_form = EtapaActualForm(request.POST, prefix='etapa') if etapa_actual else None
         evidencia_form = EvidenciaRapidaForm(request.POST, request.FILES, prefix='evidencia')
         obs_form = ObservacionesPedidoForm(request.POST, prefix='obs', instance=pedido)
 
-        if etapas_formset.is_valid() and evidencia_form.is_valid() and obs_form.is_valid():
-            etapas_formset.save()
+        if (etapa_form is None or etapa_form.is_valid()) and evidencia_form.is_valid() and obs_form.is_valid():
+            if etapa_actual:
+                etapa_actual.estado = etapa_form.cleaned_data['estado']
+                if etapa_actual.estado == 'completado' and not etapa_actual.fecha:
+                    etapa_actual.fecha = timezone.now().date()
+                etapa_actual.save(update_fields=['estado', 'fecha'])
+
             obs_form.save(commit=False)
             pedido.recalcular_progreso()
             pedido.save()
@@ -431,16 +436,17 @@ def actualizar_progreso_pedido(request, pedido_id):
                 return redirect('detalle_pedido', pedido_id=pedido.id)
             return redirect('panel_costurera')
     else:
-        etapas_formset = EtapaEstadoFormSet(prefix='etapas', queryset=etapas_qs)
+        etapa_form = EtapaActualForm(prefix='etapa', initial={'estado': etapa_actual.estado if etapa_actual and etapa_actual.estado != 'pendiente' else 'en_proceso'}) if etapa_actual else None
         evidencia_form = EvidenciaRapidaForm(prefix='evidencia')
         obs_form = ObservacionesPedidoForm(prefix='obs', instance=pedido)
 
     return render(request, 'pedidos/avance_pedido_form.html', {
         'pedido': pedido,
-        'etapas_formset': etapas_formset,
+        'etapas': etapas,
+        'etapa_actual': etapa_actual,
+        'etapa_form': etapa_form,
         'evidencia_form': evidencia_form,
         'obs_form': obs_form,
-        'etapas_con_form': zip(etapas_qs, etapas_formset.forms),
     })
 
 

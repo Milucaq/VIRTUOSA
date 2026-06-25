@@ -49,12 +49,15 @@ class EtapaPedidoForm(forms.ModelForm):
         }
 
 
-class EtapaEstadoForm(forms.ModelForm):
-    """Una fila del formset de 'Actualizar pedido': solo el estado de la
-    etapa es editable ahi, el resto (nombre, fecha) se muestra de solo lectura."""
-    class Meta:
-        model = EtapaPedido
-        fields = ['estado']
+class EtapaActualForm(forms.Form):
+    """Dentro de 'Actualizar pedido' solo se edita la etapa vigente (la
+    primera que no esta completado): no se puede retroceder a una etapa
+    ya cerrada ni saltar a una futura, asi que 'pendiente' no es una
+    opcion seleccionable aqui."""
+    estado = forms.ChoiceField(
+        choices=[c for c in EtapaPedido.ESTADOS_ETAPA if c[0] != 'pendiente'],
+        label='Estado de la etapa actual',
+    )
 
 
 class EvidenciaRapidaForm(forms.ModelForm):
