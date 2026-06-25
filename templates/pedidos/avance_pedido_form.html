@@ -133,9 +133,10 @@
 
     <div class="form-grid two">
         <div class="field-box full-field">
-            {{ obs_form.observaciones.label_tag }}
-            {{ obs_form.observaciones }}
-            {{ obs_form.observaciones.errors }}
+            {{ obs_form.texto.label_tag }}
+            {{ obs_form.texto }}
+            {{ obs_form.texto.errors }}
+            <small>Esta nota se agrega a la trazabilidad del pedido — no reemplaza observaciones anteriores.</small>
         </div>
     </div>
 

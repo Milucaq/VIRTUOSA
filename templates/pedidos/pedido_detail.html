@@ -198,11 +198,25 @@
     <article class="panel observations-panel">
         <h2>Observaciones</h2>
 
+        {% if pedido.observaciones %}
         <div class="observation-box">
-            <p>
-                {{ pedido.observaciones|default:"No se han registrado observaciones generales para este pedido." }}
-            </p>
+            <small>Nota inicial (al crear el pedido)</small>
+            <p>{{ pedido.observaciones }}</p>
         </div>
+        {% endif %}
+
+        {% for nota in observaciones_registradas %}
+        <div class="observation-box">
+            <small>{{ nota.fecha|date:"d/m/Y H:i" }} · {{ nota.usuario|default:"Sistema" }}</small>
+            <p>{{ nota.detalle }}</p>
+        </div>
+        {% empty %}
+        {% if not pedido.observaciones %}
+        <div class="empty-state">
+            Todavía no se han registrado observaciones para este pedido.
+        </div>
+        {% endif %}
+        {% endfor %}
 
         <a href="{% url 'actualizar_progreso_pedido' pedido.id %}" class="btn btn-light full">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Agregar observación

@@ -14,7 +14,7 @@ from .forms import (
     EtapaPedidoForm,
     EtapaActualForm,
     EvidenciaRapidaForm,
-    ObservacionesPedidoForm,
+    NuevaObservacionForm,
     InsumoForm,
     ConsumoInsumoForm,
     CostureraForm,
@@ -165,6 +165,7 @@ def detalle_pedido(request, pedido_id):
         'evidencias': evidencias,
         'consumos': pedido.consumos.select_related('insumo').order_by('-fecha'),
         'historial_eventos': historial.obtener_historial(pedido.id),
+        'observaciones_registradas': historial.obtener_observaciones(pedido.id),
     })
 
 
@@ -407,7 +408,7 @@ def actualizar_progreso_pedido(request, pedido_id):
     if request.method == 'POST':
         etapa_form = EtapaActualForm(request.POST, prefix='etapa') if etapa_actual else None
         evidencia_form = EvidenciaRapidaForm(request.POST, request.FILES, prefix='evidencia')
-        obs_form = ObservacionesPedidoForm(request.POST, prefix='obs', instance=pedido)
+        obs_form = NuevaObservacionForm(request.POST, prefix='obs')
 
         if (etapa_form is None or etapa_form.is_valid()) and evidencia_form.is_valid() and obs_form.is_valid():
             if etapa_actual:
@@ -416,7 +417,6 @@ def actualizar_progreso_pedido(request, pedido_id):
                     etapa_actual.fecha = timezone.now().date()
                 etapa_actual.save(update_fields=['estado', 'fecha'])
 
-            obs_form.save(commit=False)
             pedido.recalcular_progreso()
             pedido.save()
 
@@ -424,6 +424,10 @@ def actualizar_progreso_pedido(request, pedido_id):
                 evidencia = evidencia_form.save(commit=False)
                 evidencia.pedido = pedido
                 evidencia.save()
+
+            texto_obs = obs_form.cleaned_data.get('texto')
+            if texto_obs:
+                historial.registrar_evento(pedido, 'observacion', texto_obs, request.user)
 
             historial.registrar_evento(
                 pedido,
@@ -438,7 +442,7 @@ def actualizar_progreso_pedido(request, pedido_id):
     else:
         etapa_form = EtapaActualForm(prefix='etapa', initial={'estado': etapa_actual.estado if etapa_actual and etapa_actual.estado != 'pendiente' else 'en_proceso'}) if etapa_actual else None
         evidencia_form = EvidenciaRapidaForm(prefix='evidencia')
-        obs_form = ObservacionesPedidoForm(prefix='obs', instance=pedido)
+        obs_form = NuevaObservacionForm(prefix='obs')
 
     return render(request, 'pedidos/avance_pedido_form.html', {
         'pedido': pedido,

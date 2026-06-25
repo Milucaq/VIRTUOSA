@@ -73,13 +73,14 @@ class EvidenciaRapidaForm(forms.ModelForm):
         self.fields['imagen'].required = False
 
 
-class ObservacionesPedidoForm(forms.ModelForm):
-    class Meta:
-        model = Pedido
-        fields = ['observaciones']
-        widgets = {
-            'observaciones': forms.Textarea(attrs={'rows': 3}),
-        }
+class NuevaObservacionForm(forms.Form):
+    """Siempre empieza vacio: cada actualizacion agrega una nota nueva a la
+    trazabilidad del pedido, en vez de sobrescribir una unica observacion."""
+    texto = forms.CharField(
+        label='Nueva observación',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 3}),
+    )
 
 
 class InsumoForm(forms.ModelForm):

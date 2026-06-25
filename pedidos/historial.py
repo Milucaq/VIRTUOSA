@@ -85,16 +85,38 @@ def promedio_duracion_por_etapa():
 
 
 def obtener_historial(pedido_id, limite=20):
+    """Cambios generales del pedido (creacion, etapas, avances, consumos).
+    Las observaciones tienen su propio panel via obtener_observaciones(), asi
+    que se excluyen aqui para no duplicarlas en dos timelines distintas."""
     coleccion = _get_coleccion()
     if coleccion is None:
         return []
 
     try:
         return list(
-            coleccion.find({'pedido_id': pedido_id})
+            coleccion.find({'pedido_id': pedido_id, 'tipo': {'$ne': 'observacion'}})
             .sort('fecha', -1)
             .limit(limite)
         )
     except Exception:
         logger.warning('No se pudo leer el historial desde MongoDB.', exc_info=True)
+        return []
+
+
+def obtener_observaciones(pedido_id, limite=20):
+    """Notas de trazabilidad agregadas durante 'Actualizar pedido': a
+    diferencia de un campo unico que se sobrescribe, cada nota queda
+    registrada con su propia fecha y nunca se pierde la anterior."""
+    coleccion = _get_coleccion()
+    if coleccion is None:
+        return []
+
+    try:
+        return list(
+            coleccion.find({'pedido_id': pedido_id, 'tipo': 'observacion'})
+            .sort('fecha', -1)
+            .limit(limite)
+        )
+    except Exception:
+        logger.warning('No se pudo leer las observaciones desde MongoDB.', exc_info=True)
         return []
